@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!-- HTML ケバブケース -->
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Beyblade Profile Card Generator</title>
+</head>
+
+<body>
+	<div id="contents">
+		<div id="main-contents">
+			<div class="introduce-wrapper">
+				<div class="left-container">
+					<img id="result-img" alt="生成画像" style="border:1px solid #ccc;" />
+					<form id="textform">
+						<input type="text" id="input-blader-name" placeholder="ここに文字を入力" />
+						<input type="text" id="input-age" placeholder="例：20代後半" />
+						<input type="text" id="input-gender" placeholder="例：男性" />
+						<input type="text" id="input-location" placeholder="例：福岡市周辺" />
+						<input type="text" id="input-generation" placeholder="例：メタルファイトベイブレード、ベイブレードX" />
+						<input type="text" id="input-max-power" placeholder="例：1万" />
+						<input type="text" id="input-launcher" placeholder="例：ロングワインダー派" />
+						<input type="text" id="input-tournament" maxlength="7" placeholder="最大7文字まで" title="半角英数字のみ入力可能" />
+						<textarea rows="4" id="input-free-comment" cols="20" placeholder="例：まずはゆるく繋がれるとうれしいです"></textarea>
+					</form>
+				</div>
+
+				<div class="right-container">
+					<div class="img-import-wrapper" style="margin-bottom: 20px;">
+						<p>Profile Cardに入れる画像を選択↓</p>
+						<input type="file" id="imgInput"><br>
+					</div>
+					<div class="re-edit-wrapper">
+					<button type="button" id="generate-btn" style="margin-bottom: 20px;margin-right: 15px;">画像生成</button>
+					<button type="button" id="re-edit-btn">再編集</button>
+					</div>
+					<button type="button" id="download-btn" style="display:none;"><a id="downloadLink" download="image.png">ダウンロードはこちらをクリック</a></button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script><!--jquery読み込み-->
+	<script src="/js/header.js"></script><!--jqueryより後に読み込む-->
+	<script src="/js/sidebar.js"></script><!--jqueryより後に読み込む-->
+
+
+</body>
+<!-- ↓このページ独自のJS追加 -->
+<script>
+	const canvas = document.createElement('canvas');
+	const ctx = canvas.getContext('2d');
+	const imgSrc = "/img/prf.png"; // 元画像のURL
+	// https://m.media-amazon.com/images/S/al-jp-eb5039ce-f881/f13500df-a0ef-492e-8c38-0a785dd632d1._AC_SX175_SY100_QL70_.png
+
+	// 追加の入力要素
+	const inputText = document.getElementById('input-blader-name');
+	const inputAge = document.getElementById('input-age');
+	const inputGender = document.getElementById('input-gender');
+	const inputLocation = document.getElementById('input-location');
+	const inputGeneration = document.getElementById('input-generation');
+	const inputMaxPower = document.getElementById('input-max-power');
+	const inputLauncher = document.getElementById('input-launcher');
+	const inputTournament = document.getElementById('input-tournament');
+	const inputFreeComment = document.getElementById('input-free-comment');
+
+	const generateBtn = document.getElementById('generate-btn');
+	const reEditBtn = document.getElementById('re-edit-btn');
+	const imgInput = document.getElementById('imgInput');
+	const resultImg = document.getElementById('result-img');
+	resultImg.src = imgSrc;// 初期表示
+	const downloadLink = document.getElementById('downloadLink');
+	const downloadBtn = document.getElementById('download-btn');
+
+	// 画像読み込み＋文字描画＋imgタグに反映しリンク生成
+	function generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment) {
+		const baseImg = new Image();
+		baseImg.src = imgSrc;
+		baseImg.crossOrigin = 'anonymous'; // クロスオリジン回避(CORS)
+		baseImg.onload = () => {
+			canvas.width = baseImg.width;
+			canvas.height = baseImg.height;
+
+			// 画像を描画
+			ctx.drawImage(baseImg, 0, 0);
+
+			// 文字スタイル設定
+			ctx.font = '30px Arial';
+			ctx.fillStyle = '#3BBCDC';
+			ctx.textAlign = 'start';//文字の位置は下記の数値が文字列のどこに位置するか
+
+			// 真ん中に記入する場合ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+			ctx.fillText(text, 10, 100);
+			ctx.fillText(textAge, 10, 180);
+			ctx.fillText(textGender, 230, 180);
+			ctx.fillText(textLocation, 10, 260);
+			ctx.fillText(textGeneration, 10, 380);
+			ctx.fillText(textMaxPower, 10, 500);
+			ctx.fillText(textLauncher, 220, 500);
+			ctx.fillText(textTournament, 440, 500);
+
+			textFreeComment.forEach((line, index) => {
+				ctx.fillText(line, 10, 32 * index + 600); // 左寄せ10px、縦位置調整
+			});
+			// ctx.fillText(textFreeComment, 10, 660);
+
+			inputText.style.display = 'none';
+			inputAge.style.display = 'none';
+			inputGender.style.display = 'none';
+			inputLocation.style.display = 'none';
+			inputGeneration.style.display = 'none';
+			inputMaxPower.style.display = 'none';
+			inputLauncher.style.display = 'none';
+			inputTournament.style.display = 'none';
+			inputFreeComment.style.display = 'none';
+
+			//プロフィール画像処理
+			const file = imgInput.files[0];
+
+			// 画像を取り込んでいない場合処理終了
+			if (!file) {
+				alert('画像を選択してください。');
+				return;
+			}
+
+			// FileReaderでローカル画像を読み込む
+			const reader = new FileReader();
+
+			//読み込み開始、読み込み完了後にreader.onloadイベントが発火し、e.target.resultにBase64形式のデータURLが格納
+			reader.readAsDataURL(file);
+
+			reader.onload = function (e) {
+				// ローカル画像を読み込んで重ねる
+				const overlayImg = new Image();
+				overlayImg.src = e.target.result;
+
+				overlayImg.onload = function () {
+					// サイズ調整したい場合はdrawImageの引数で変更可能
+					// ctx.drawImage(overlayImg, 50, 50, overlayImg.width, overlayImg.height);
+					ctx.drawImage(overlayImg, 440, 50, 210, 148);
+
+
+					// Canvas画像表示
+					//canvas要素に描画された内容を「PNG形式のBase64データURL」に変換 画像のホスト側がCORS許可ヘッダー出していないと処理が動かない
+					const canvas_data_url = canvas.toDataURL('image/png');
+					resultImg.src = canvas_data_url;
+
+					// ダウンロードリンク設定
+					downloadLink.href = canvas_data_url;
+					downloadBtn.style.display = 'inline';
+				};
+			};
+		};
+
+	}
+
+
+	// 画像生成ボタンが押されたら実行
+	generateBtn.addEventListener('click', () => {
+		const text = inputText.value.trim();
+		const textAge = inputAge.value.trim();
+		const textGender = inputGender.value.trim();
+		const textLocation = inputLocation.value.trim();
+		const textGeneration = inputGeneration.value.trim();
+		const textMaxPower = inputMaxPower.value.trim();
+		const textLauncher = inputLauncher.value.trim();
+		const textTournament = inputTournament.value.trim();
+		const textFreeComment = inputFreeComment.value.split('\n'); // 改行で分割;
+		// if (!text) {
+		// 	alert('文字を入力してください。');
+		// 	return;
+		// }
+		generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment);
+	});
+
+	// 再編集ボタンが押されたら実行
+	reEditBtn.addEventListener('click', () => {
+		inputText.style.display = 'inline';
+		inputAge.style.display = 'inline';
+		inputGender.style.display = 'inline';
+		inputLocation.style.display = 'inline';
+		inputGeneration.style.display = 'inline';
+		inputMaxPower.style.display = 'inline';
+		inputLauncher.style.display = 'inline';
+		inputTournament.style.display = 'inline';
+		inputFreeComment.style.display = 'inline';
+		// ctx.fillTextの内容を消す
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		resultImg.src = imgSrc;
+		downloadBtn.style.display = 'none';
+	});
+
+</script>
+
+<!-- ↓このページ独自のCSS追加 -->
+<style>
+	@media screen and (min-width: 768px) {
+		.introduce-wrapper {
+			display: flex;
+			/* justify-content: space-between; */
+		}
+	}
+
+
+	.introduce-wrapper {
+		position: relative;
+	}
+
+	input[type="text"],
+	textarea {
+		position: absolute;
+		background-color: transparent;
+		border: transparent;
+		color: #3bbcdc;
+		font-weight: bold;
+		font-size: 30px;
+	}
+
+	#input-blader-name {
+		position: absolute;
+		top: 75px;
+		left: 10px;
+		height: 40px;
+		width: 400px;
+	}
+
+	#input-age {
+		position: absolute;
+		top: 150px;
+		left: 10px;
+		height: 40px;
+		width: 150px;
+	}
+
+	#input-gender {
+		position: absolute;
+		top: 150px;
+		left: 250px;
+		height: 40px;
+		width: 150px;
+	}
+
+	#input-location {
+		position: absolute;
+		top: 230px;
+		left: 10px;
+		height: 60px;
+		width: 600px;
+	}
+
+	#input-generation {
+		position: absolute;
+		top: 350px;
+		left: 10px;
+		height: 60px;
+		width: 600px;
+	}
+
+	#input-max-power {
+		position: absolute;
+		top: 455px;
+		left: 10px;
+		height: 60px;
+		width: 150px;
+	}
+
+	#input-launcher {
+		position: absolute;
+		top: 455px;
+		left: 225px;
+		height: 60px;
+		width: 200px;
+	}
+
+	#input-tournament {
+		position: absolute;
+		top: 455px;
+		left: 440px;
+		height: 60px;
+		width: 200px;
+	}
+
+	#input-free-comment {
+		position: absolute;
+		top: 570px;
+		left: 10px;
+		height: 300px;
+		width: 600px;
+	}
+
+	button {
+		font-size: 30px;
+		background-color: #f59b64;
+		box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.3);
+		border-radius: 20px;
+		color: white;
+		border: 1px solid #333;
+		padding: 15px 30px;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+	}
+
+	input[type="file"] {
+		font-size: 20px;
+		background-color: #f59b64;
+		box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.3);
+		border-radius: 20px;
+		color: white;
+		border: 1px solid #333;
+		padding: 15px 30px;
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+	}
+</style>
+
+</html>
