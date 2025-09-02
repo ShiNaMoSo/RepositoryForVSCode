@@ -89,6 +89,7 @@
 		const scale = Math.min(screenWidth / baseImg.width, 1);
 		document.body.style.transformOrigin = 'left top';
 		document.body.style.transform = `scale(${scale})`;
+		location.reload();
 	}
 
 	// 画像読み込み＋文字描画＋imgタグに反映しリンク生成
