@@ -48,7 +48,7 @@
 </body>
 <!-- ↓このページ独自のJS追加 -->
 <script>
-	const canvas = document.createElement('canvas');
+	const canvas = document.createElement('canvas');//JavaScriptのメモリ上で生成する。HTMLツリー（DOM）には出現しない
 	const ctx = canvas.getContext('2d');
 	const imgSrc = "https://shinamoso.github.io/RepositoryForVSCode/img/02-prf.png"; // 元画像のURL
 
@@ -67,24 +67,28 @@
 	const reEditBtn = document.getElementById('re-edit-btn');
 	const imgInput = document.getElementById('imgInput');
 	const resultImg = document.getElementById('result-img');
-	resultImg.src = imgSrc;// 初期表示
+	resultImg.src = imgSrc;// 画像表示
 	const downloadLink = document.getElementById('downloadLink');
 	const downloadBtn = document.getElementById('download-btn');
 
 	const baseImg = new Image();
+	//Image オブジェクトに画像URLを設定すると、ブラウザはその画像ファイルのダウンロードを開始
 	baseImg.src = imgSrc;
 	baseImg.crossOrigin = 'anonymous'; // クロスオリジン回避(CORS)
+	
+	//画像の読み込みが完了したときに発生するイベントハンドラ
 	baseImg.onload = () => {
 		canvas.width = baseImg.width;
 		canvas.height = baseImg.height;
 
-		// 画像を描画
+		// Canvasに画像を描画
 		ctx.drawImage(baseImg, 0, 0);
+		alert('画像が読み込まれました');
 	};
 
 	if (document.documentElement.clientWidth < baseImg.width) {
 		const screenWidth = document.documentElement.clientWidth;
-
+alert(document.documentElement.clientWidth, baseImg.width);
 		console.log(screenWidth, baseImg.width);
 		const scale = Math.min(screenWidth / baseImg.width, 1);
 		document.body.style.transformOrigin = 'left top';
@@ -156,6 +160,8 @@
 				// Canvas画像表示
 				//canvas要素に描画された内容を「PNG形式のBase64データURL」に変換 画像のホスト側がCORS許可ヘッダー出していないと処理が動かない
 				const canvas_data_url = canvas.toDataURL('image/png');
+				
+				//imgタグのsrcをcanvasで生成したものに変更する
 				resultImg.src = canvas_data_url;
 
 				// ダウンロードリンク設定
