@@ -15,7 +15,7 @@
 		<div id="main-contents">
 			<div class="introduce-wrapper">
 				<div class="left-container">
-					<img id="result-img" alt="生成画像" style="border:1px solid #ccc;" />
+					<img id="result-img" alt="生成画像" style="border:1px solid #ccc;">
 					<form id="textform">
 						<input type="text" id="input-blader-name" placeholder="ここに文字を入力" />
 						<input type="text" id="input-age" placeholder="例：20代後半" />
@@ -35,8 +35,8 @@
 						<input type="file" id="imgInput"><br>
 					</div>
 					<div class="re-edit-wrapper">
-					<button type="button" id="generate-btn" style="margin-bottom: 20px;margin-right: 15px;">画像生成</button>
-					<button type="button" id="re-edit-btn">再編集</button>
+						<button type="button" id="generate-btn" style="margin-bottom: 20px;margin-right: 15px;">画像生成</button>
+						<button type="button" id="re-edit-btn">再編集</button>
 					</div>
 					<button type="button" id="download-btn" style="display:none;"><a id="downloadLink" download="image.png">ダウンロードはこちらをクリック</a></button>
 				</div>
@@ -71,86 +71,97 @@
 	const downloadLink = document.getElementById('downloadLink');
 	const downloadBtn = document.getElementById('download-btn');
 
+	const baseImg = new Image();
+	baseImg.src = imgSrc;
+	baseImg.crossOrigin = 'anonymous'; // クロスオリジン回避(CORS)
+	baseImg.onload = () => {
+		canvas.width = baseImg.width;
+		canvas.height = baseImg.height;
+
+		// 画像を描画
+		ctx.drawImage(baseImg, 0, 0);
+	};
+
+	if (document.documentElement.clientWidth < baseImg.width) {
+		const screenWidth = document.documentElement.clientWidth;
+
+		console.log(screenWidth, baseImg.width);
+		const scale = Math.min(screenWidth / baseImg.width, 1);
+		document.body.style.transformOrigin = 'left top';
+		document.body.style.transform = `scale(${scale})`;
+	}
+
 	// 画像読み込み＋文字描画＋imgタグに反映しリンク生成
 	function generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment) {
-		const baseImg = new Image();
-		baseImg.src = imgSrc;
-		baseImg.crossOrigin = 'anonymous'; // クロスオリジン回避(CORS)
-		baseImg.onload = () => {
-			canvas.width = baseImg.width;
-			canvas.height = baseImg.height;
-
-			// 画像を描画
-			ctx.drawImage(baseImg, 0, 0);
-
-			// 文字スタイル設定
-			ctx.font = '30px Arial';
-			ctx.fillStyle = '#3BBCDC';
-			ctx.textAlign = 'start';//文字の位置は下記の数値が文字列のどこに位置するか
-
-			// 真ん中に記入する場合ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-			ctx.fillText(text, 10, 100);
-			ctx.fillText(textAge, 10, 180);
-			ctx.fillText(textGender, 230, 180);
-			ctx.fillText(textLocation, 10, 260);
-			ctx.fillText(textGeneration, 10, 380);
-			ctx.fillText(textMaxPower, 10, 500);
-			ctx.fillText(textLauncher, 220, 500);
-			ctx.fillText(textTournament, 440, 500);
-
-			textFreeComment.forEach((line, index) => {
-				ctx.fillText(line, 10, 32 * index + 600); // 左寄せ10px、縦位置調整
-			});
-			// ctx.fillText(textFreeComment, 10, 660);
-
-			inputText.style.display = 'none';
-			inputAge.style.display = 'none';
-			inputGender.style.display = 'none';
-			inputLocation.style.display = 'none';
-			inputGeneration.style.display = 'none';
-			inputMaxPower.style.display = 'none';
-			inputLauncher.style.display = 'none';
-			inputTournament.style.display = 'none';
-			inputFreeComment.style.display = 'none';
-
-			//プロフィール画像処理
-			const file = imgInput.files[0];
-
-			// 画像を取り込んでいない場合処理終了
-			if (!file) {
-				alert('画像を選択してください。');
-				return;
-			}
-
-			// FileReaderでローカル画像を読み込む
-			const reader = new FileReader();
-
-			//読み込み開始、読み込み完了後にreader.onloadイベントが発火し、e.target.resultにBase64形式のデータURLが格納
-			reader.readAsDataURL(file);
-
-			reader.onload = function (e) {
-				// ローカル画像を読み込んで重ねる
-				const overlayImg = new Image();
-				overlayImg.src = e.target.result;
-
-				overlayImg.onload = function () {
-					// サイズ調整したい場合はdrawImageの引数で変更可能
-					// ctx.drawImage(overlayImg, 50, 50, overlayImg.width, overlayImg.height);
-					ctx.drawImage(overlayImg, 440, 50, 210, 148);
 
 
-					// Canvas画像表示
-					//canvas要素に描画された内容を「PNG形式のBase64データURL」に変換 画像のホスト側がCORS許可ヘッダー出していないと処理が動かない
-					const canvas_data_url = canvas.toDataURL('image/png');
-					resultImg.src = canvas_data_url;
 
-					// ダウンロードリンク設定
-					downloadLink.href = canvas_data_url;
-					downloadBtn.style.display = 'inline';
-				};
+		// 文字スタイル設定
+		ctx.font = '30px Arial';
+		ctx.fillStyle = '#3BBCDC';
+		ctx.textAlign = 'start';//文字の位置は下記の数値が文字列のどこに位置するか
+
+		// 真ん中に記入する場合ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+		ctx.fillText(text, 10, 100);
+		ctx.fillText(textAge, 10, 180);
+		ctx.fillText(textGender, 230, 180);
+		ctx.fillText(textLocation, 10, 260);
+		ctx.fillText(textGeneration, 10, 380);
+		ctx.fillText(textMaxPower, 10, 500);
+		ctx.fillText(textLauncher, 220, 500);
+		ctx.fillText(textTournament, 440, 500);
+
+		textFreeComment.forEach((line, index) => {
+			ctx.fillText(line, 10, 32 * index + 600); // 左寄せ10px、縦位置調整
+		});
+		// ctx.fillText(textFreeComment, 10, 660);
+
+		inputText.style.display = 'none';
+		inputAge.style.display = 'none';
+		inputGender.style.display = 'none';
+		inputLocation.style.display = 'none';
+		inputGeneration.style.display = 'none';
+		inputMaxPower.style.display = 'none';
+		inputLauncher.style.display = 'none';
+		inputTournament.style.display = 'none';
+		inputFreeComment.style.display = 'none';
+
+		//プロフィール画像処理
+		const file = imgInput.files[0];
+
+		// 画像を取り込んでいない場合処理終了
+		if (!file) {
+			alert('画像を選択してください。');
+			return;
+		}
+
+		// FileReaderでローカル画像を読み込む
+		const reader = new FileReader();
+
+		//読み込み開始、読み込み完了後にreader.onloadイベントが発火し、e.target.resultにBase64形式のデータURLが格納
+		reader.readAsDataURL(file);
+
+		reader.onload = function (e) {
+			// ローカル画像を読み込んで重ねる
+			const overlayImg = new Image();
+			overlayImg.src = e.target.result;
+
+			overlayImg.onload = function () {
+				// サイズ調整したい場合はdrawImageの引数で変更可能
+				// ctx.drawImage(overlayImg, 50, 50, overlayImg.width, overlayImg.height);
+				ctx.drawImage(overlayImg, 440, 50, 210, 148);
+
+
+				// Canvas画像表示
+				//canvas要素に描画された内容を「PNG形式のBase64データURL」に変換 画像のホスト側がCORS許可ヘッダー出していないと処理が動かない
+				const canvas_data_url = canvas.toDataURL('image/png');
+				resultImg.src = canvas_data_url;
+
+				// ダウンロードリンク設定
+				downloadLink.href = canvas_data_url;
+				downloadBtn.style.display = 'inline';
 			};
 		};
-
 	}
 
 
@@ -193,6 +204,10 @@
 
 <!-- ↓このページ独自のCSS追加 -->
 <style>
+	body {
+		margin: 0;
+	}
+
 	@media screen and (min-width: 768px) {
 		.introduce-wrapper {
 			display: flex;
