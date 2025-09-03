@@ -30,16 +30,19 @@
 				</div>
 
 				<div class="right-container">
-					<div class="img-import-wrapper" style="margin-bottom: 20px;">
-						<p>Profile Cardに入れる画像を選択↓</p>
-						<input type="file" id="imgInput"><br>
+					<div id="colorpicker-wrapper">
+						<label for="colorPicker" id="colorpicker-label">文字色を選択: </label>
+						<input type="color" id="colorPicker" value="#3bbcdc" />
 					</div>
-					<div class="re-edit-wrapper">
-						<button type="button" id="generate-btn" style="margin-bottom: 20px;margin-right: 15px;">画像生成</button>
+					<div class="img-import-wrapper">
+						<label for="imgInput" class="custom-file-button" id="img-input-label">アイコン画像を選択</label>
+						<input type="file" id="imgInput" style="display: none;"><br>
+					</div>
+					<div class="button-wrapper" style="width: 175%;">
+						<button type="button" id="generate-btn">画像生成</button>
 						<button type="button" id="re-edit-btn">再編集</button>
+						<button type="button" id="download-btn" style="display:none;"><a id="downloadLink" download="image.png">ダウンロード</a></button>
 					</div>
-					<button type="button" id="download-btn" style="display:none;"><a id="downloadLink"
-							download="image.png">ダウンロードはこちらをクリック</a></button>
 				</div>
 			</div>
 		</div>
@@ -72,6 +75,36 @@
 	const downloadLink = document.getElementById('downloadLink');
 	const downloadBtn = document.getElementById('download-btn');
 
+
+	const colorPicker = document.getElementById('colorPicker');
+
+	// カラーピッカーの値が変わったら文字色を更新
+	colorPicker.addEventListener('input', () => {
+
+		const textInputs = document.querySelectorAll('input[type="text"]');
+		textInputs.forEach(input => {
+			input.style.color = colorPicker.value;
+		});
+
+		inputFreeComment.style.color = colorPicker.value;
+
+
+	});
+
+	const input = document.getElementById('imgInput');
+	const imgInputLabel = document.getElementById('img-input-label');
+	// const fileNameSpan = document.getElementById('fileName');
+
+	input.addEventListener('change', () => {
+		if (input.files.length > 0) {
+			// imgInputLabel.textContent = 'アイコン画像選択済み✅';
+			imgInputLabel.innerHTML = '選択済み✅';
+			// mgInputLabel.textContent = input.files[0].name + 'を選択済み';
+		} else {
+			imgInputLabel.textContent = 'アイコン画像を選択';
+		}
+	});
+
 	const baseImg = new Image();
 	//Image オブジェクトに画像URLを設定すると、ブラウザはその画像ファイルのダウンロードを開始
 	baseImg.src = imgSrc;
@@ -84,11 +117,9 @@
 
 		// Canvasに画像を描画
 		ctx.drawImage(baseImg, 0, 0);
-		alert('画像が読み込まれました');
 
 		if (document.documentElement.clientWidth < baseImg.width) {
 			const screenWidth = document.documentElement.clientWidth;
-			alert("処理内部" + document.documentElement.clientWidth + baseImg.width);
 			const scale = Math.min(screenWidth / baseImg.width, 1);
 			document.body.style.transformOrigin = 'left top';
 			document.body.style.transform = `scale(${scale})`;
@@ -100,11 +131,12 @@
 	// 画像読み込み＋文字描画＋imgタグに反映しリンク生成
 	function generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment) {
 
+		ctx.drawImage(baseImg, 0, 0);
 
 
 		// 文字スタイル設定
 		ctx.font = '30px Arial';
-		ctx.fillStyle = '#3BBCDC';
+		ctx.fillStyle = colorPicker.value;
 		ctx.textAlign = 'start';//文字の位置は下記の数値が文字列のどこに位置するか
 
 		// 真ん中に記入する場合ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -184,6 +216,8 @@
 		const textLauncher = inputLauncher.value.trim();
 		const textTournament = inputTournament.value.trim();
 		const textFreeComment = inputFreeComment.value.split('\n'); // 改行で分割;
+
+		imgInputLabel.style.display = 'none';
 		// if (!text) {
 		// 	alert('文字を入力してください。');
 		// 	return;
@@ -202,6 +236,7 @@
 		inputLauncher.style.display = 'inline';
 		inputTournament.style.display = 'inline';
 		inputFreeComment.style.display = 'inline';
+		imgInputLabel.style.display = 'inline-block';
 		// ctx.fillTextの内容を消す
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		resultImg.src = imgSrc;
@@ -226,7 +261,34 @@
 
 	.introduce-wrapper {
 		position: relative;
+		width: 100%;
+		/* 画面幅いっぱいに */
 	}
+
+	.img-import-wrapper {
+		position: absolute;
+		top: 100px;
+		left: 450px;
+		width: 200px;
+		height: 200px;
+		overflow: hidden;
+		font-size: 10px !important;
+		padding: 0;
+	}
+
+	.custom-file-button {
+		display: inline-block;
+		padding: 10px 20px;
+		background-color: white;
+		color: black;
+		cursor: pointer;
+		font-weight: bold;
+		font-size: 16px;
+		user-select: none;
+		border: 1px solid #333;
+	}
+
+
 
 	input[type="text"],
 	textarea {
@@ -310,6 +372,22 @@
 		width: 600px;
 	}
 
+	#colorpicker-wrapper {
+		margin: 10px;
+	}
+
+	#colorPicker {
+		width: 150px;
+		height: 50px;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+	}
+
+	#colorpicker-label {
+		font-size: 32px;
+	}
+
 	button {
 		font-size: 30px;
 		background-color: #f59b64;
@@ -320,9 +398,18 @@
 		padding: 15px 30px;
 		cursor: pointer;
 		transition: all 0.2s ease-in-out;
+		margin: 10px;
 	}
 
-	input[type="file"] {
+	.button-wrapper {
+		display: flex;
+		/* justify-content: space-between; */
+		/* 等間隔に配置 */
+		flex-wrap: nowrap;
+		/* 折り返し禁止 */
+	}
+
+	/* input[type="file"] {
 		font-size: 20px;
 		background-color: #f59b64;
 		box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.3);
@@ -332,7 +419,7 @@
 		padding: 15px 30px;
 		cursor: pointer;
 		transition: all 0.2s ease-in-out;
-	}
+	} */
 </style>
 
 </html>
