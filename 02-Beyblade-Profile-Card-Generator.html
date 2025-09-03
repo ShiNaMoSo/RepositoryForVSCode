@@ -38,7 +38,8 @@
 						<button type="button" id="generate-btn" style="margin-bottom: 20px;margin-right: 15px;">画像生成</button>
 						<button type="button" id="re-edit-btn">再編集</button>
 					</div>
-					<button type="button" id="download-btn" style="display:none;"><a id="downloadLink" download="image.png">ダウンロードはこちらをクリック</a></button>
+					<button type="button" id="download-btn" style="display:none;"><a id="downloadLink"
+							download="image.png">ダウンロードはこちらをクリック</a></button>
 				</div>
 			</div>
 		</div>
@@ -75,7 +76,7 @@
 	//Image オブジェクトに画像URLを設定すると、ブラウザはその画像ファイルのダウンロードを開始
 	baseImg.src = imgSrc;
 	baseImg.crossOrigin = 'anonymous'; // クロスオリジン回避(CORS)
-	
+
 	//画像の読み込みが完了したときに発生するイベントハンドラ
 	baseImg.onload = () => {
 		canvas.width = baseImg.width;
@@ -84,17 +85,17 @@
 		// Canvasに画像を描画
 		ctx.drawImage(baseImg, 0, 0);
 		alert('画像が読み込まれました');
+
+		if (document.documentElement.clientWidth < baseImg.width) {
+			const screenWidth = document.documentElement.clientWidth;
+			alert("処理内部" + document.documentElement.clientWidth + baseImg.width);
+			const scale = Math.min(screenWidth / baseImg.width, 1);
+			document.body.style.transformOrigin = 'left top';
+			document.body.style.transform = `scale(${scale})`;
+		}
 	};
 
-	if (document.documentElement.clientWidth < baseImg.width) {
-		const screenWidth = document.documentElement.clientWidth;
-alert(document.documentElement.clientWidth, baseImg.width);
-		console.log(screenWidth, baseImg.width);
-		const scale = Math.min(screenWidth / baseImg.width, 1);
-		document.body.style.transformOrigin = 'left top';
-		document.body.style.transform = `scale(${scale})`;
-		location.reload();
-	}
+
 
 	// 画像読み込み＋文字描画＋imgタグに反映しリンク生成
 	function generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment) {
@@ -160,7 +161,7 @@ alert(document.documentElement.clientWidth, baseImg.width);
 				// Canvas画像表示
 				//canvas要素に描画された内容を「PNG形式のBase64データURL」に変換 画像のホスト側がCORS許可ヘッダー出していないと処理が動かない
 				const canvas_data_url = canvas.toDataURL('image/png');
-				
+
 				//imgタグのsrcをcanvasで生成したものに変更する
 				resultImg.src = canvas_data_url;
 
