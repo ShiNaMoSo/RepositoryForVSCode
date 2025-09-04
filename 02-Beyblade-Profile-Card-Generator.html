@@ -24,24 +24,34 @@
 						<input type="text" id="input-generation" placeholder="例：メタルファイトベイブレード、ベイブレードX" />
 						<input type="text" id="input-max-power" placeholder="例：1万" />
 						<input type="text" id="input-launcher" placeholder="例：ロングワインダー派" />
-						<input type="text" id="input-tournament" maxlength="7" placeholder="最大7文字まで" title="半角英数字のみ入力可能" />
+						<input type="text" id="input-tournament" maxlength="7" placeholder="最大7文字まで" />
 						<textarea rows="4" id="input-free-comment" cols="20" placeholder="例：まずはゆるく繋がれるとうれしいです"></textarea>
 					</form>
 				</div>
 
 				<div class="right-container">
 					<div id="colorpicker-wrapper">
-						<label for="colorPicker" id="colorpicker-label">文字色を選択: </label>
-						<input type="color" id="colorPicker" value="#3bbcdc" />
+						<label for="colorpicker" id="colorpicker-label">文字色を選択: </label>
+						<input type="color" id="colorpicker" value="#3bbcdc" />
+					</div>
+					<div id="fontselector-wrapper">
+						<label for="fontselector">フォントを選択：</label>
+						<select id="fontselector">
+							<option value="'Helvetica Neue', 'Helvetica', 'Hiragino Sans', 'Arial', 'Yu Gothic', 'Meiryo', sans-serif">ゴシック体</option>
+							<option value="'Times New Roman', 'YuMincho', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho', serif">明朝体</option>
+							<option value="'Times New Roman', serif">Times New Roman</option>
+							<option value="monospace">等幅</option>
+							<option value="'Meiryo', 'メイリオ', sans-serif">メイリオ</option>
+						</select>
 					</div>
 					<div class="img-import-wrapper">
-						<label for="imgInput" class="custom-file-button" id="img-input-label">アイコン画像を選択</label>
-						<input type="file" id="imgInput" style="display: none;"><br>
+						<label for="imgimport" class="custom-file-button" id="img-input-label">アイコン画像を選択</label>
+						<input type="file" id="imgimport" style="display: none;"><br>
 					</div>
 					<div class="button-wrapper" style="width: 175%;">
 						<button type="button" id="generate-btn">画像生成</button>
 						<button type="button" id="re-edit-btn">再編集</button>
-						<button type="button" id="download-btn" style="display:none;"><a id="downloadLink" download="image.png">ダウンロード</a></button>
+						<button type="button" id="download-btn" style="display:none;"><a id="downloadlink" download="image.png">ダウンロード</a></button>
 					</div>
 				</div>
 			</div>
@@ -69,40 +79,54 @@
 
 	const generateBtn = document.getElementById('generate-btn');
 	const reEditBtn = document.getElementById('re-edit-btn');
-	const imgInput = document.getElementById('imgInput');
+	const imgInput = document.getElementById('imgimport');
 	const resultImg = document.getElementById('result-img');
 	resultImg.src = imgSrc;// 画像表示
-	const downloadLink = document.getElementById('downloadLink');
+	const downloadLink = document.getElementById('downloadlink');
 	const downloadBtn = document.getElementById('download-btn');
 
 
-	const colorPicker = document.getElementById('colorPicker');
+	const colorpicker = document.getElementById('colorpicker');
 
 	// カラーピッカーの値が変わったら文字色を更新
-	colorPicker.addEventListener('input', () => {
+	colorpicker.addEventListener('input', () => {
 
 		const textInputs = document.querySelectorAll('input[type="text"]');
 		textInputs.forEach(input => {
-			input.style.color = colorPicker.value;
+			input.style.color = colorpicker.value;
 		});
 
-		inputFreeComment.style.color = colorPicker.value;
+		inputFreeComment.style.color = colorpicker.value;
 
 
 	});
 
-	const input = document.getElementById('imgInput');
+	//プロフィールアイコン読み込み処理
+	const input = document.getElementById('imgimport');
 	const imgInputLabel = document.getElementById('img-input-label');
-	// const fileNameSpan = document.getElementById('fileName');
 
 	input.addEventListener('change', () => {
 		if (input.files.length > 0) {
-			// imgInputLabel.textContent = 'アイコン画像選択済み✅';
-			imgInputLabel.innerHTML = '選択済み✅';
-			// mgInputLabel.textContent = input.files[0].name + 'を選択済み';
+			imgInputLabel.textContent = '選択済み✅';
 		} else {
 			imgInputLabel.textContent = 'アイコン画像を選択';
 		}
+	});
+
+
+	//フォント変更処理
+	const selector = document.getElementById('fontselector');
+	let fontName;
+	selector.addEventListener('change', function () {
+		fontName = this.value;
+
+		const style = document.createElement('style');
+		style.innerHTML = `
+  input::placeholder,textarea::placeholder,input[type="text"],textarea {
+    font-family: ${fontName} !important;
+  }
+`;
+		document.head.appendChild(style);
 	});
 
 	const baseImg = new Image();
@@ -135,8 +159,8 @@
 
 
 		// 文字スタイル設定
-		ctx.font = '30px Arial';
-		ctx.fillStyle = colorPicker.value;
+		ctx.font = `30px ${fontName}`;
+		ctx.fillStyle = colorpicker.value;
 		ctx.textAlign = 'start';//文字の位置は下記の数値が文字列のどこに位置するか
 
 		// 真ん中に記入する場合ctx.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -218,10 +242,7 @@
 		const textFreeComment = inputFreeComment.value.split('\n'); // 改行で分割;
 
 		imgInputLabel.style.display = 'none';
-		// if (!text) {
-		// 	alert('文字を入力してください。');
-		// 	return;
-		// }
+
 		generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment);
 	});
 
@@ -261,8 +282,6 @@
 
 	.introduce-wrapper {
 		position: relative;
-		width: 100%;
-		/* 画面幅いっぱいに */
 	}
 
 	.img-import-wrapper {
@@ -376,7 +395,7 @@
 		margin: 10px;
 	}
 
-	#colorPicker {
+	#colorpicker {
 		width: 150px;
 		height: 50px;
 		border: none;
@@ -385,7 +404,20 @@
 	}
 
 	#colorpicker-label {
-		font-size: 32px;
+		font-size: 30px;
+	}
+
+	#fontselector-wrapper {
+		margin-bottom: 10px;
+		font-size: 30px;
+	}
+
+	select {
+		font-size: 24px;
+		height: 48px;
+		/* ボックス自体の高さを大きく */
+		padding: 6px 12px;
+		/* 内側の余白も調整可能 */
 	}
 
 	button {
@@ -403,23 +435,9 @@
 
 	.button-wrapper {
 		display: flex;
-		/* justify-content: space-between; */
-		/* 等間隔に配置 */
-		flex-wrap: nowrap;
+		/* flex-wrap: nowrap; */
 		/* 折り返し禁止 */
 	}
-
-	/* input[type="file"] {
-		font-size: 20px;
-		background-color: #f59b64;
-		box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.3);
-		border-radius: 20px;
-		color: white;
-		border: 1px solid #333;
-		padding: 15px 30px;
-		cursor: pointer;
-		transition: all 0.2s ease-in-out;
-	} */
 </style>
 
 </html>
