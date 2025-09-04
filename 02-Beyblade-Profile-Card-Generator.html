@@ -48,7 +48,7 @@
 						<label for="imgimport" class="custom-file-button" id="img-input-label">アイコン画像を選択</label>
 						<input type="file" id="imgimport" style="display: none;"><br>
 					</div>
-					<div class="button-wrapper" style="width: 175%;">
+					<div class="button-wrapper">
 						<button type="button" id="generate-btn">画像生成</button>
 						<button type="button" id="re-edit-btn">再編集</button>
 						<button type="button" id="download-btn" style="display:none;"><a id="downloadlink" download="image.png">ダウンロード</a></button>
@@ -269,10 +269,10 @@
 <!-- ↓このページ独自のCSS追加 -->
 <style>
 	@font-face {
-  font-family: 'DotWeb';
-  src: url('https://shinamoso.github.io/RepositoryForVSCode/font/Nosutaru-dotMPlusH-10-Regular_Subsetting.woff2') format('woff2');
-	/* https://logotype.jp/nosutaru-dot.html */
-}
+		font-family: 'DotWeb';
+		src: url('https://shinamoso.github.io/RepositoryForVSCode/font/Nosutaru-dotMPlusH-10-Regular_Subsetting.woff2') format('woff2');
+		/* https://logotype.jp/nosutaru-dot.html */
+	}
 
 	body {
 		margin: 0;
@@ -288,6 +288,10 @@
 
 	.introduce-wrapper {
 		position: relative;
+	}
+
+	.right-container {
+		width: 175%;
 	}
 
 	.img-import-wrapper {
