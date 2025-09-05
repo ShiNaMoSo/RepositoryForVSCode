@@ -65,6 +65,7 @@
 	const canvas = document.createElement('canvas');//JavaScriptのメモリ上で生成する。HTMLツリー（DOM）には出現しない
 	const ctx = canvas.getContext('2d');
 	const imgSrc = "https://shinamoso.github.io/RepositoryForVSCode/img/02-prf.png"; // 元画像のURL
+	// const imgSrc = "/img/w.jpg"; // 元画像のURL
 
 	// 追加の入力要素
 	const inputText = document.getElementById('input-blader-name');
@@ -94,10 +95,11 @@
 		const textInputs = document.querySelectorAll('input[type="text"]');
 		textInputs.forEach(input => {
 			input.style.color = colorpicker.value;
+			input.style.webkitTextFillColor = colorpicker.value;
 		});
 
 		inputFreeComment.style.color = colorpicker.value;
-
+		inputFreeComment.style.webkitTextFillColor = colorpicker.value;
 
 	});
 
@@ -329,6 +331,16 @@
 		font-size: 30px;
 	}
 
+	/* ブラウザの履歴（オートフィル）から入力された場合も文字色を変える */
+	input:-webkit-autofill,
+	input:-webkit-autofill:hover,
+	input:-webkit-autofill:focus {
+		-webkit-text-fill-color: #3bbcdc;
+		-webkit-box-shadow: 0 0 0 1000px transparent inset !important;/*「inset」は内側に影を描く 「0 0 0 1000px」 水平・垂直の影のオフセットとぼかしの半径,影の拡張範囲*/
+		transition: background-color 5000s ease-in-out 0s;
+		/* ease-in-out はアニメーションの速度変化を緩やかに始まりゆっくり終わる設定、0s はアニメーション開始の遅延時間をなし 変化の期間を5000秒にすることで自動的に付く背景を無しにしている */
+	}
+
 	#input-blader-name {
 		position: absolute;
 		top: 75px;
@@ -445,8 +457,6 @@
 
 	.button-wrapper {
 		display: flex;
-		/* flex-wrap: nowrap; */
-		/* 折り返し禁止 */
 	}
 </style>
 
