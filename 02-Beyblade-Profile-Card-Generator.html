@@ -63,24 +63,12 @@
 	const canvas = document.createElement('canvas');//この時点ではJavaScriptのメモリ上で生成する。HTMLツリー（DOM）には出現しない
 	const ctx = canvas.getContext('2d');
 
-	// 追加の入力要素
-	const inputText = document.getElementById('input-blader-name');
-	const inputAge = document.getElementById('input-age');
-	const inputGender = document.getElementById('input-gender');
-	const inputLocation = document.getElementById('input-location');
-	const inputGeneration = document.getElementById('input-generation');
-	const inputMaxPower = document.getElementById('input-max-power');
-	const inputLauncher = document.getElementById('input-launcher');
-	const inputTournament = document.getElementById('input-tournament');
-	const inputFreeComment = document.getElementById('input-free-comment');
 
-	const generateBtn = document.getElementById('generate-btn');
-	const reEditBtn = document.getElementById('re-edit-btn');
-	const resultImg = document.getElementById('result-img');
+	//初期画像処理
 	const imgSrc = "https://shinamoso.github.io/RepositoryForVSCode/img/02-prf.png"; // 元画像のURL
+	const resultImg = document.getElementById('result-img');
 	// const imgSrc = "/img/w.jpg"; // 元画像のURL
 	resultImg.src = imgSrc;// 画像表示
-
 
 
 	//プロフィールアイコン読み込み処理
@@ -98,12 +86,12 @@
 
 	//カラーピッカー処理
 	const colorpicker = document.getElementById('colorpicker');
+	const textInputsArray = document.querySelectorAll('input[type="text"]');
 
 	// カラーピッカーの値が変わったら文字色を更新
 	colorpicker.addEventListener('input', () => {
 
-		const textInputs = document.querySelectorAll('input[type="text"]');
-		textInputs.forEach(input => {
+		textInputsArray.forEach(input => {
 			input.style.color = colorpicker.value;
 			input.style.webkitTextFillColor = colorpicker.value;
 		});
@@ -140,6 +128,7 @@
 		canvas.width = baseImg.width;
 		canvas.height = baseImg.height;
 
+		//画面幅よりテンプレート画像が大きい場合は縮小する
 		if (document.documentElement.clientWidth < baseImg.width) {
 			const screenWidth = document.documentElement.clientWidth;
 			const scale = Math.min(screenWidth / baseImg.width, 1);
@@ -149,12 +138,34 @@
 	};
 
 
+	// 画像生成ボタンが押され時の処理
+	const generateBtn = document.getElementById('generate-btn');
 	const downloadLink = document.getElementById('downloadlink');
 	const downloadBtn = document.getElementById('download-btn');
 
-	//画像生成ボタンが押されたときの処理
-	// 画像読み込み＋文字描画＋imgタグに反映しリンク生成
-	function generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment) {
+
+	const inputText = document.getElementById('input-blader-name');
+	const inputAge = document.getElementById('input-age');
+	const inputGender = document.getElementById('input-gender');
+	const inputLocation = document.getElementById('input-location');
+	const inputGeneration = document.getElementById('input-generation');
+	const inputMaxPower = document.getElementById('input-max-power');
+	const inputLauncher = document.getElementById('input-launcher');
+	const inputTournament = document.getElementById('input-tournament');
+	const inputFreeComment = document.getElementById('input-free-comment');
+
+	generateBtn.addEventListener('click', () => {
+		const text = inputText.value.trim();
+		const textAge = inputAge.value.trim();
+		const textGender = inputGender.value.trim();
+		const textLocation = inputLocation.value.trim();
+		const textGeneration = inputGeneration.value.trim();
+		const textMaxPower = inputMaxPower.value.trim();
+		const textLauncher = inputLauncher.value.trim();
+		const textTournament = inputTournament.value.trim();
+		const textFreeComment = inputFreeComment.value.split('\n'); // 改行で分割して配列にする;
+
+
 
 		//Canvasに画像を描画
 		ctx.drawImage(baseImg, 0, 0);
@@ -175,20 +186,19 @@
 		ctx.fillText(textLauncher, 220, 500);
 		ctx.fillText(textTournament, 440, 500);
 
+		//フリーコメントは1行ごとに場所を指定する
 		textFreeComment.forEach((line, index) => {
 			ctx.fillText(line, 10, 32 * index + 600); // 左寄せ10px、縦位置調整
 		});
-		// ctx.fillText(textFreeComment, 10, 660);
 
 		//Canvasで文字を表示するので、input要素を非表示にする
-		inputText.style.display = 'none';
-		inputAge.style.display = 'none';
-		inputGender.style.display = 'none';
-		inputLocation.style.display = 'none';
-		inputGeneration.style.display = 'none';
-		inputMaxPower.style.display = 'none';
-		inputLauncher.style.display = 'none';
-		inputTournament.style.display = 'none';
+		textInputsArray.forEach(input => {
+			input.style.display = 'none';
+		});
+
+		// アイコン画像選択ボタンを非表示にする
+		imgInputLabel.style.display = 'none';
+
 		inputFreeComment.style.display = 'none';
 
 		//プロフィール画像処理
@@ -216,7 +226,6 @@
 				// ctx.drawImage(overlayImg, 50, 50, overlayImg.width, overlayImg.height);
 				ctx.drawImage(overlayImg, 440, 50, 210, 148);
 
-
 				// Canvas画像表示
 				//canvas要素に描画された内容を「PNG形式のBase64データURL」に変換 画像のホスト側がCORS許可ヘッダー出していないと処理が動かない
 				const canvas_data_url = canvas.toDataURL('image/png');
@@ -229,49 +238,34 @@
 				downloadBtn.style.display = 'inline';
 			};
 		};
-	}
-
-
-	// 画像生成ボタンが押されたら実行
-	generateBtn.addEventListener('click', () => {
-		const text = inputText.value.trim();
-		const textAge = inputAge.value.trim();
-		const textGender = inputGender.value.trim();
-		const textLocation = inputLocation.value.trim();
-		const textGeneration = inputGeneration.value.trim();
-		const textMaxPower = inputMaxPower.value.trim();
-		const textLauncher = inputLauncher.value.trim();
-		const textTournament = inputTournament.value.trim();
-		const textFreeComment = inputFreeComment.value.split('\n'); // 改行で分割;
-
-		// アイコン画像選択ボタンを非表示にする
-		imgInputLabel.style.display = 'none';
-
-		generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment);
 	});
 
+
 	// 再編集ボタンが押されたら実行
+	const reEditBtn = document.getElementById('re-edit-btn');
+
 	reEditBtn.addEventListener('click', () => {
-		inputText.style.display = 'inline';
-		inputAge.style.display = 'inline';
-		inputGender.style.display = 'inline';
-		inputLocation.style.display = 'inline';
-		inputGeneration.style.display = 'inline';
-		inputMaxPower.style.display = 'inline';
-		inputLauncher.style.display = 'inline';
-		inputTournament.style.display = 'inline';
+
 		inputFreeComment.style.display = 'inline';
 		imgInputLabel.style.display = 'inline-block';
+
+
+		textInputsArray.forEach(input => {
+			input.style.display = 'inline';
+
+			//inputを再表示させたことによってブラウザ履歴（オートフィル）で入力された部分の背景画像が透明にならないのを解消する
+			const val = input.value;
+			input.value = "";
+			input.value = val;
+		});
+
 		// ctx.fillTextの内容を消す
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		//画像をcanvasから背景画像に戻す
 		resultImg.src = imgSrc;
+
 		downloadBtn.style.display = 'none';
-
-
-		const val = inputGender.value;
-inputGender.value = "";
-inputGender.value = val;
-
 	});
 
 </script>
@@ -291,7 +285,6 @@ inputGender.value = val;
 	@media screen and (min-width: 768px) {
 		.introduce-wrapper {
 			display: flex;
-			/* justify-content: space-between; */
 		}
 	}
 
@@ -326,8 +319,6 @@ inputGender.value = val;
 		user-select: none;
 		border: 1px solid #333;
 	}
-
-
 
 	input[type="text"],
 	textarea {
@@ -447,9 +438,7 @@ inputGender.value = val;
 	select {
 		font-size: 24px;
 		height: 48px;
-		/* ボックス自体の高さを大きく */
 		padding: 6px 12px;
-		/* 内側の余白も調整可能 */
 	}
 
 	button {
