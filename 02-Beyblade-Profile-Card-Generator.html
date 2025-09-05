@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
-<!-- HTML ケバブケース -->
+<!-- HTML ケバブケース 変数は使う処理の近くに宣言-->
 
 <head>
 	<meta charset="UTF-8">
@@ -39,9 +39,7 @@
 						<select id="fontselector">
 							<option value="'Helvetica Neue', 'Helvetica', 'Hiragino Sans', 'Arial', 'Yu Gothic', 'Meiryo', sans-serif">ゴシック体</option>
 							<option value="'Times New Roman', 'YuMincho', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho', serif">明朝体</option>
-							<!-- <option value="'Times New Roman', serif">Times New Roman</option> -->
 							<option value="DotWeb">ドット</option>
-							<!-- <option value="'Meiryo', 'メイリオ', sans-serif">メイリオ</option> -->
 						</select>
 					</div>
 					<div class="img-import-wrapper">
@@ -62,10 +60,8 @@
 </body>
 <!-- ↓このページ独自のJS追加 -->
 <script>
-	const canvas = document.createElement('canvas');//JavaScriptのメモリ上で生成する。HTMLツリー（DOM）には出現しない
+	const canvas = document.createElement('canvas');//この時点ではJavaScriptのメモリ上で生成する。HTMLツリー（DOM）には出現しない
 	const ctx = canvas.getContext('2d');
-	const imgSrc = "https://shinamoso.github.io/RepositoryForVSCode/img/02-prf.png"; // 元画像のURL
-	// const imgSrc = "/img/w.jpg"; // 元画像のURL
 
 	// 追加の入力要素
 	const inputText = document.getElementById('input-blader-name');
@@ -80,13 +76,27 @@
 
 	const generateBtn = document.getElementById('generate-btn');
 	const reEditBtn = document.getElementById('re-edit-btn');
-	const imgInput = document.getElementById('imgimport');
 	const resultImg = document.getElementById('result-img');
+	const imgSrc = "https://shinamoso.github.io/RepositoryForVSCode/img/02-prf.png"; // 元画像のURL
+	// const imgSrc = "/img/w.jpg"; // 元画像のURL
 	resultImg.src = imgSrc;// 画像表示
-	const downloadLink = document.getElementById('downloadlink');
-	const downloadBtn = document.getElementById('download-btn');
 
 
+
+	//プロフィールアイコン読み込み処理
+	const inputImg = document.getElementById('imgimport');
+	const imgInputLabel = document.getElementById('img-input-label');
+
+	inputImg.addEventListener('change', () => {
+		if (inputImg.files.length > 0) {
+			imgInputLabel.textContent = '選択済み✅';
+		} else {
+			imgInputLabel.textContent = 'アイコン画像を選択';
+		}
+	});
+
+
+	//カラーピッカー処理
 	const colorpicker = document.getElementById('colorpicker');
 
 	// カラーピッカーの値が変わったら文字色を更新
@@ -100,19 +110,6 @@
 
 		inputFreeComment.style.color = colorpicker.value;
 		inputFreeComment.style.webkitTextFillColor = colorpicker.value;
-
-	});
-
-	//プロフィールアイコン読み込み処理
-	const input = document.getElementById('imgimport');
-	const imgInputLabel = document.getElementById('img-input-label');
-
-	input.addEventListener('change', () => {
-		if (input.files.length > 0) {
-			imgInputLabel.textContent = '選択済み✅';
-		} else {
-			imgInputLabel.textContent = 'アイコン画像を選択';
-		}
 	});
 
 
@@ -131,6 +128,8 @@
 		document.head.appendChild(style);
 	});
 
+
+	//Canvasの初期画像処理
 	const baseImg = new Image();
 	//Image オブジェクトに画像URLを設定すると、ブラウザはその画像ファイルのダウンロードを開始
 	baseImg.src = imgSrc;
@@ -141,9 +140,6 @@
 		canvas.width = baseImg.width;
 		canvas.height = baseImg.height;
 
-		// Canvasに画像を描画
-		ctx.drawImage(baseImg, 0, 0);
-
 		if (document.documentElement.clientWidth < baseImg.width) {
 			const screenWidth = document.documentElement.clientWidth;
 			const scale = Math.min(screenWidth / baseImg.width, 1);
@@ -153,10 +149,14 @@
 	};
 
 
+	const downloadLink = document.getElementById('downloadlink');
+	const downloadBtn = document.getElementById('download-btn');
 
+	//画像生成ボタンが押されたときの処理
 	// 画像読み込み＋文字描画＋imgタグに反映しリンク生成
 	function generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment) {
 
+		//Canvasに画像を描画
 		ctx.drawImage(baseImg, 0, 0);
 
 
@@ -180,6 +180,7 @@
 		});
 		// ctx.fillText(textFreeComment, 10, 660);
 
+		//Canvasで文字を表示するので、input要素を非表示にする
 		inputText.style.display = 'none';
 		inputAge.style.display = 'none';
 		inputGender.style.display = 'none';
@@ -191,7 +192,7 @@
 		inputFreeComment.style.display = 'none';
 
 		//プロフィール画像処理
-		const file = imgInput.files[0];
+		const file = inputImg.files[0];
 
 		// 画像を取り込んでいない場合処理終了
 		if (!file) {
@@ -243,6 +244,7 @@
 		const textTournament = inputTournament.value.trim();
 		const textFreeComment = inputFreeComment.value.split('\n'); // 改行で分割;
 
+		// アイコン画像選択ボタンを非表示にする
 		imgInputLabel.style.display = 'none';
 
 		generateImageWithText(text, textAge, textGender, textLocation, textGeneration, textMaxPower, textLauncher, textTournament, textFreeComment);
@@ -264,6 +266,12 @@
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		resultImg.src = imgSrc;
 		downloadBtn.style.display = 'none';
+
+
+		const val = inputGender.value;
+inputGender.value = "";
+inputGender.value = val;
+
 	});
 
 </script>
@@ -336,9 +344,11 @@
 	input:-webkit-autofill:hover,
 	input:-webkit-autofill:focus {
 		-webkit-text-fill-color: #3bbcdc;
-		-webkit-box-shadow: 0 0 0 1000px transparent inset !important;/*「inset」は内側に影を描く 「0 0 0 1000px」 水平・垂直の影のオフセットとぼかしの半径,影の拡張範囲*/
+		-webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+		/*「inset」は内側に影を描く 「0 0 0 1000px」 水平・垂直の影のオフセットとぼかしの半径,影の拡張範囲*/
 		transition: background-color 5000s ease-in-out 0s;
 		/* ease-in-out はアニメーションの速度変化を緩やかに始まりゆっくり終わる設定、0s はアニメーション開始の遅延時間をなし 変化の期間を5000秒にすることで自動的に付く背景を無しにしている */
+		/* background-color: transparent !important; */
 	}
 
 	#input-blader-name {
