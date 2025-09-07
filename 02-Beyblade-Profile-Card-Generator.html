@@ -54,12 +54,29 @@
 				</div>
 			</div>
 		</div>
+		<div id="modal-contents" style="display: none;" class="modal">
+			<!-- <div id="modal-wrapper" class="modal"> -->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1>プロフィール画像に使う部分を選択してください</h1>
+					<span class="modal-close-btn">&times;</span>
+				</div>
+				<div id="modal-body">
+					<canvas id="canvas-modal" width="100%"></canvas>
+					<!-- <img id="modal-img" alt="モーダル内に表示される画像" style="border:1px solid #ccc;" width="100%"> -->
+					<button id="cropButton">確定</button>
+					<canvas id="resultCanvas"></canvas>
+					<img id="preview">
+				</div>
+			</div>
+			<!-- </div> -->
+		</div>
 	</div>
-
 
 </body>
 <!-- ↓このページ独自のJS追加 -->
 <script>
+
 	const canvas = document.createElement('canvas');//この時点ではJavaScriptのメモリ上で生成する。HTMLツリー（DOM）には出現しない
 	const ctx = canvas.getContext('2d');
 
@@ -67,7 +84,7 @@
 	//初期画像処理
 	const imgSrc = "https://shinamoso.github.io/RepositoryForVSCode/img/02-prf.png"; // 元画像のURL
 	const resultImg = document.getElementById('result-img');
-	// const imgSrc = "/img/w.jpg"; // 元画像のURL
+	// const imgSrc = "/img/test.jpg"; // test用画像のURL
 	resultImg.src = imgSrc;// 画像表示
 
 
@@ -75,13 +92,287 @@
 	const inputImg = document.getElementById('imgimport');
 	const imgInputLabel = document.getElementById('img-input-label');
 
-	inputImg.addEventListener('change', () => {
+
+	//モーダル関数
+	const modalBackground = document.getElementById('modal-contents');
+	const modalCloseBtn = document.getElementsByClassName('modal-close-btn')[0];
+
+	//mモーダルのバツ印がクリックされた時
+	modalCloseBtn.addEventListener('click', modalClose);
+	function modalClose() {
+		modalBackground.style.display = 'none';
+	}
+
+	modalBackground.addEventListener('click', outsideClose);//modalBackground.addEventListenerだと子要素も拾ってしまうため、if文で条件分岐する
+	function outsideClose(e) {
+		if (e.target == modalBackground) { //e.target イベントが発生した要素（子要素含む）を取得しmodalBackgroundの要素と同じ場合実行 すなわちモーダルの背景部分がクリックされたとき実行
+			modalBackground.style.display = 'none';//子要素も自動的に消える（継承ではなくそのような仕様）
+		}
+	};
+
+
+	//画像選択時の処理
+	const canvasModal = document.getElementById('canvas-modal');
+	const ctxModal = canvasModal.getContext('2d');
+	const resultCanvas = document.getElementById('resultCanvas');
+	const resultCtx = resultCanvas.getContext('2d');
+
+	inputImg.addEventListener('change', (e) => {
 		if (inputImg.files.length > 0) {
 			imgInputLabel.textContent = '選択済み✅';
 		} else {
 			imgInputLabel.textContent = 'アイコン画像を選択';
 		}
+
+		//モーダルを表示
+		modalBackground.style.display = 'block';
+
+		const modalBody = document.getElementById('modal-body');
+		const drawWidth = modalBody.clientWidth - 40; // 40はパディング分
+		const maxHeight = modalBody.clientHeight;
+		let drawHeight;
+
+		const file2 = e.target.files[0];
+		if (!file2) return;
+		const reader = new FileReader();
+		let img = new Image();
+
+		//選択画像が読み込まれたら実行
+		reader.onload = event => {
+			img.src = event.target.result;//読み込んだ画像（Base64エンコードされた文字列）をsrcに設定
+			img.onload = () => {
+
+				//モーダル内に表示するCanvasサイズを調整
+				canvasModal.width = drawWidth;
+
+				// 画像の縦横比とコンテナの縦横比を計算
+				const imgRatio = img.width / img.height;
+				const containerRatio = drawWidth / maxHeight;
+
+				// Canvasの高さをCanvasの横幅を元に算出（画像の比率と同じになるようにする）
+				drawHeight = drawWidth / imgRatio;
+
+				// Canvasサイズを描画サイズに合わせて設定
+				canvasModal.height = drawHeight;
+
+				draw();
+			};
+		};
+		reader.readAsDataURL(file2);//Data URL形式（Base64エンコードされた文字列）にする onloadのイベントハンドラを登録してから記載する
+
+
+		//トリミング範囲の矩形
+		let cropRect = { x: 50, y: 50, w: 210, h: 148 };//オブジェクト
+		const handleSize = 12;
+		let isDragging = false;
+		let dragOffsetX = 0;
+		let dragOffsetY = 0;
+		let isResizing = false;
+		let resizeDir = '';
+
+		function draw() {
+			//念のためクリアしてから描画
+			ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
+			ctxModal.drawImage(img, 0, 0, drawWidth, drawHeight);
+
+			// トリミング範囲を描画
+			ctxModal.fillStyle = 'rgba(0, 0, 255, 0.3)';//塗りつぶしの色
+			ctxModal.fillRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);//塗りつぶしの四角形を描画
+			ctxModal.strokeStyle = 'blue';//枠線の色
+			ctxModal.lineWidth = 2;
+			ctxModal.strokeRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);//枠線を描画
+
+			// Draw handles (四隅＋4辺)
+			getAllHandles().forEach(h => drawHandle(h.x, h.y));
+		}
+
+		//ハンドル＝トリミング範囲の小さい8つの四角形
+		function drawHandle(x, y) {
+			ctxModal.fillStyle = 'white';
+			ctxModal.strokeStyle = 'blue';
+			ctxModal.lineWidth = 2;
+			ctxModal.beginPath();
+			ctxModal.rect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
+			ctxModal.fill();
+			ctxModal.stroke();
+		}
+
+		function getAllHandles() {
+			const x = cropRect.x, y = cropRect.y, w = cropRect.w, h = cropRect.h;
+			//nwの命名はnorth west（北西）
+			return [//配列にオブジェクトが入っている
+				{ dir: 'nw', x: x, y: y },
+				{ dir: 'n', x: x + w / 2, y: y },
+				{ dir: 'ne', x: x + w, y: y },
+				{ dir: 'e', x: x + w, y: y + h / 2 },
+				{ dir: 'se', x: x + w, y: y + h },
+				{ dir: 's', x: x + w / 2, y: y + h },
+				{ dir: 'sw', x: x, y: y + h },
+				{ dir: 'w', x: x, y: y + h / 2 },
+			];
+		}
+
+		const directionToCursor = {
+			'n': 'n-resize',
+			'e': 'e-resize',
+			's': 's-resize',
+			'w': 'w-resize',
+			'ne': 'ne-resize',
+			'nw': 'nw-resize',
+			'se': 'se-resize',
+			'sw': 'sw-resize'
+		};
+
+		function getHandleAt(x, y) {
+			return getAllHandles().find(h =>
+				x >= h.x - handleSize / 2 && x <= h.x + handleSize / 2 &&
+				y >= h.y - handleSize / 2 && y <= h.y + handleSize / 2
+			)?.dir || '';
+		}
+
+		function inRect(x, y) {
+			return (
+				x >= cropRect.x &&
+				x <= cropRect.x + cropRect.w &&
+				y >= cropRect.y &&
+				y <= cropRect.y + cropRect.h
+			);
+		}
+
+		function getPosFromEvent(e) {
+			const rect = canvasModal.getBoundingClientRect();
+			if (e.touches && e.touches.length > 0) {
+				return {
+					x: e.touches[0].clientX - rect.left,
+					y: e.touches[0].clientY - rect.top,
+				};
+			} else {
+				return {
+					x: e.clientX - rect.left,
+					y: e.clientY - rect.top,
+				};
+			}
+		}
+
+		function setCursor(e) {
+			const pos = getPosFromEvent(e);
+			const dir = getHandleAt(pos.x, pos.y);
+			if (dir && directionToCursor[dir]) {
+				canvasModal.style.cursor = directionToCursor[dir];
+			} else if (inRect(pos.x, pos.y)) {
+				canvasModal.style.cursor = "move";
+			} else {
+				canvasModal.style.cursor = "default";
+			}
+		}
+
+		function startDrag(e) {
+			e.preventDefault();
+			const pos = getPosFromEvent(e);
+			const handle = getHandleAt(pos.x, pos.y);
+			if (handle) {
+				isResizing = true;
+				resizeDir = handle;
+			} else if (inRect(pos.x, pos.y)) {
+				isDragging = true;
+				dragOffsetX = pos.x - cropRect.x;
+				dragOffsetY = pos.y - cropRect.y;
+			}
+		}
+
+		function moveDrag(e) {
+			if (!isDragging && !isResizing) {
+				setCursor(e);
+				return;
+			}
+			e.preventDefault();
+			const pos = getPosFromEvent(e);
+
+			if (isDragging) {
+				cropRect.x = Math.max(0, Math.min(canvasModal.width - cropRect.w, pos.x - dragOffsetX));
+				cropRect.y = Math.max(0, Math.min(canvasModal.height - cropRect.h, pos.y - dragOffsetY));
+			} else if (isResizing) {
+				let minW = handleSize, minH = handleSize;
+				let x = cropRect.x, y = cropRect.y, w = cropRect.w, h = cropRect.h;
+				switch (resizeDir) {
+					case 'nw':
+						w += x - pos.x; h += y - pos.y; x = pos.x; y = pos.y; break;
+					case 'n':
+						h += y - pos.y; y = pos.y; break;
+					case 'ne':
+						w = pos.x - x; h += y - pos.y; y = pos.y; break;
+					case 'e':
+						w = pos.x - x; break;
+					case 'se':
+						w = pos.x - x; h = pos.y - y; break;
+					case 's':
+						h = pos.y - y; break;
+					case 'sw':
+						w += x - pos.x; x = pos.x; h = pos.y - y; break;
+					case 'w':
+						w += x - pos.x; x = pos.x; break;
+				}
+				// 最小サイズ制御
+				w = Math.max(w, minW);
+				h = Math.max(h, minH);
+				// 画像外に出ないよう制御
+				if (x < 0) { w += x; x = 0; }
+				if (y < 0) { h += y; y = 0; }
+				if (x + w > canvasModal.width) w = canvasModal.width - x;
+				if (y + h > canvasModal.height) h = canvasModal.height - y;
+				cropRect = { x, y, w, h };
+			}
+			draw();
+		}
+
+		function endDrag(e) {
+			isDragging = false;
+			isResizing = false;
+		}
+
+
+		canvasModal.addEventListener('mousedown', startDrag);//マウスボタン押下
+		canvasModal.addEventListener('mousemove', moveDrag);//マウス移動
+		canvasModal.addEventListener('mouseup', endDrag);//マウスボタンを離す
+		canvasModal.addEventListener('mouseleave', endDrag);//マウスがキャンバスから離れた
+		canvasModal.addEventListener('mousemove', setCursor);
+
+		canvasModal.addEventListener('touchstart', startDrag);
+		canvasModal.addEventListener('touchmove', moveDrag);
+		canvasModal.addEventListener('touchend', endDrag);
+		canvasModal.addEventListener('touchcancel', endDrag);
+
+		document.getElementById('cropButton').addEventListener('click', () => {
+			resultCanvas.width = cropRect.w;
+			resultCanvas.height = cropRect.h;
+			resultCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+			resultCtx.drawImage(
+				img,
+				cropRect.x * (img.width / drawWidth), // 元画像の切り取り開始位置のX座標（右方向）
+				cropRect.y * (img.height / drawHeight),
+				cropRect.w * (img.width / drawWidth),// 描画する幅（切り取りサイズと同じなのでリサイズなし）
+				cropRect.h * (img.height / drawHeight),
+				0,
+				0,
+				cropRect.w,
+				cropRect.h
+			);
+			updateInputFileFromCanvas(resultCanvas);
+			modalBackground.style.display = 'none';
+		});
+
 	});
+
+
+	function updateInputFileFromCanvas(resultCanvas) {
+		resultCanvas.toBlob(blob => {
+			const file = new File([blob], "cropped.png", { type: "image/png" });
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add(file);
+			const inputElem = document.getElementById('imgimport');
+			inputElem.files = dataTransfer.files;
+		});
+	}
 
 
 	//カラーピッカー処理
@@ -268,9 +559,13 @@
 		downloadBtn.style.display = 'none';
 	});
 
+
+
+
 </script>
 
 <!-- ↓このページ独自のCSS追加 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 <style>
 	@font-face {
 		font-family: 'DotWeb';
@@ -456,6 +751,74 @@
 
 	.button-wrapper {
 		display: flex;
+	}
+
+
+
+
+
+	.modal {
+		position: fixed;
+		z-index: 1;
+		/*数字が大きい方が上*/
+		left: 0;
+		top: 0;
+		height: 100%;
+		width: 100%;
+		overflow: auto;
+		/*ボックスに収まらない内容をどう表示するかは、ユーザーエージェントに依存する。内容が収まらない場合には、スクロールバーなどが表示される*/
+		background-color: rgba(0, 0, 0, 0.5);
+		/*モーダル外の背景*/
+	}
+
+	.modal-content {
+		background-color: #f4f4f4;
+		margin: 5% auto;
+		width: 75%;
+		box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
+		animation-name: modalopen;
+		animation-duration: 1s;
+	}
+
+	@keyframes modalopen {
+		from {
+			opacity: 0
+		}
+
+		to {
+			opacity: 1
+		}
+	}
+
+	.modal-header h1 {
+		margin: 1rem 0;
+	}
+
+	.modal-header {
+		background: lightblue;
+		padding: 3px 15px;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.modalClose {
+		font-size: 2rem;
+	}
+
+	.modalClose:hover {
+		cursor: pointer;
+	}
+
+	#modal-body {
+		padding: 10px 20px;
+		color: black;
+	}
+
+	#canvas-modal {
+		border: 1px solid #333;
+		touch-action: none;
+		cursor: crosshair;
+		z-index: 2;
 	}
 </style>
 
