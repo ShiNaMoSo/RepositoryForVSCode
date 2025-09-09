@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
-<!-- HTML ケバブケース 変数は使う処理の近くに宣言-->
+<!-- HTML ケバブケース 変数は使う処理の近くに宣言 変数はローワーキャメルケース  camelCase-->
+<!-- wrapper ＞ container ＞ content ※Contentsはリストを囲む場合など-->
+<!-- 基本idを使う class -->
+ <!-- 特殊な要素の命名は、要素名をいれる  label-img-import-->
 
 <head>
 	<meta charset="UTF-8">
@@ -11,69 +14,63 @@
 </head>
 
 <body>
-	<div id="contents">
-		<div id="main-contents">
-			<div class="introduce-wrapper">
-				<div class="left-container">
-					<img id="result-img" alt="生成画像" style="border:1px solid #ccc;">
-					<form id="textform">
-						<input type="text" id="input-blader-name" placeholder="ここに文字を入力" />
-						<input type="text" id="input-age" placeholder="例：20代後半" />
-						<input type="text" id="input-gender" placeholder="例：男性" />
-						<input type="text" id="input-location" placeholder="例：福岡市周辺" />
-						<input type="text" id="input-generation" placeholder="例：メタルファイトベイブレード、ベイブレードX" />
-						<input type="text" id="input-max-power" placeholder="例：1万" />
-						<input type="text" id="input-launcher" placeholder="例：ロングワインダー派" />
-						<input type="text" id="input-tournament" maxlength="7" placeholder="最大7文字まで" />
-						<textarea rows="4" id="input-free-comment" cols="20" placeholder="例：まずはゆるく繋がれるとうれしいです"></textarea>
-					</form>
+	<div id="wrapper">
+		<div id="main-container">
+			<div id="left-content">
+				<img id="result-img" alt="テンプレート画像" width="900px">
+				<form id="textform">
+					<input type="text" id="input-blader-name" placeholder="ここに文字を入力" />
+					<input type="text" id="input-age" placeholder="例：20代後半" />
+					<input type="text" id="input-gender" placeholder="例：男性" />
+					<input type="text" id="input-location" placeholder="例：福岡市周辺" />
+					<input type="text" id="input-generation" placeholder="例：メタベイ、ベイブレードX" />
+					<input type="text" id="input-max-power" placeholder="例：1万" />
+					<input type="text" id="input-launcher" placeholder="例：ロングワインダー派" />
+					<input type="text" id="input-tournament" maxlength="7" placeholder="最大7文字まで" />
+					<textarea rows="4" id="input-free-comment" cols="20" placeholder="例：まずはゆるく繋がれるとうれしいです"></textarea>
+				</form>
+				<div id="img-import-content">
+					<label for="input-img-import" id="label-img-import">アイコン画像を選択</label>
+					<input type="file" id="input-img-import" style="display: none;"><br>
 				</div>
-
-				<div class="right-container">
-					<div id="colorpicker-wrapper">
-						<label for="colorpicker" id="colorpicker-label">文字色を選択: </label>
-						<input type="color" id="colorpicker" value="#3bbcdc" />
-					</div>
-					<div id="fontselector-wrapper">
-						<label for="fontselector">フォントを選択：</label>
-						<select id="fontselector">
-							<option value="'Helvetica Neue', 'Helvetica', 'Hiragino Sans', 'Arial', 'Yu Gothic', 'Meiryo', sans-serif">ゴシック体</option>
-							<option value="'Times New Roman', 'YuMincho', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho', serif">明朝体</option>
-							<option value="DotWeb">ドット</option>
-						</select>
-					</div>
-					<div class="img-import-wrapper">
-						<label for="imgimport" class="custom-file-button" id="img-input-label">アイコン画像を選択</label>
-						<input type="file" id="imgimport" style="display: none;"><br>
-					</div>
-					<div class="button-wrapper">
-						<button type="button" id="generate-btn">画像生成</button>
-						<button type="button" id="re-edit-btn">再編集</button>
-						<button type="button" id="download-btn" style="display:none;"><a id="downloadlink" download="image.png">ダウンロード</a></button>
-					</div>
+			</div>
+			<div id="right-content">
+				<div id="colorpicker-wrapper">
+					<label for="colorpicker" id="colorpicker-label">文字色を選択: </label>
+					<input type="color" id="colorpicker" value="#3bbcdc" />
+				</div>
+				<div id="fontselector-wrapper">
+					<label for="fontselector">フォントを選択：</label>
+					<select id="fontselector">
+						<option value="'Helvetica Neue', 'Helvetica', 'Hiragino Sans', 'Arial', 'Yu Gothic', 'Meiryo', sans-serif">ゴシック体</option>
+						<option value="'Times New Roman', 'YuMincho', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho', serif">明朝体</option>
+						<option value="DotWeb">ドット</option>
+					</select>
+				</div>
+				<div id="button-content">
+					<button type="button" id="generate-button">画像生成</button>
+					<button type="button" id="re-edit-button" style="display: none;">再編集</button>
+					<button type="button" id="download-button" style="display:none;"><a id="downloadlink" download="image.png">ダウンロード</a></button>
 				</div>
 			</div>
 		</div>
-		<div id="modal-contents" style="display: none;" class="modal">
-			<!-- <div id="modal-wrapper" class="modal"> -->
-			<div class="modal-content">
-				<div class="modal-header">
+		<div id="modal-container" style="display: none;" class="modal">
+			<div id="modal-content">
+				<div id="modal-header">
 					<h1>プロフィール画像に使う部分を選択してください</h1>
-					<span class="modal-close-btn">&times;</span>
+					<span id="modal-close-button">&times;</span>
 				</div>
 				<div id="modal-body">
+					<button id="crop-button">確定</button>
 					<canvas id="canvas-modal" width="100%"></canvas>
-					<!-- <img id="modal-img" alt="モーダル内に表示される画像" style="border:1px solid #ccc;" width="100%"> -->
-					<button id="cropButton">確定</button>
-					<canvas id="resultCanvas"></canvas>
+					<canvas id="resultCanvas" style="display: none;"></canvas>
 					<img id="preview">
 				</div>
 			</div>
-			<!-- </div> -->
 		</div>
 	</div>
-
 </body>
+
 <!-- ↓このページ独自のJS追加 -->
 <script>
 
@@ -84,20 +81,20 @@
 	//初期画像処理
 	const imgSrc = "https://shinamoso.github.io/RepositoryForVSCode/img/02-prf.png"; // 元画像のURL
 	const resultImg = document.getElementById('result-img');
-	// const imgSrc = "/img/test.jpg"; // test用画像のURL
+	// const imgSrc = "/img/test.png"; // test用画像のURL
 	resultImg.src = imgSrc;// 画像表示
 
 
 	//プロフィールアイコン読み込み処理
-	const inputImg = document.getElementById('imgimport');
-	const imgInputLabel = document.getElementById('img-input-label');
+	const inputImg = document.getElementById('input-img-import');
+	const imgInputLabel = document.getElementById('label-img-import');
 
 
 	//モーダル関数
-	const modalBackground = document.getElementById('modal-contents');
-	const modalCloseBtn = document.getElementsByClassName('modal-close-btn')[0];
+	const modalBackground = document.getElementById('modal-container');
+	const modalCloseBtn = document.getElementById('modal-close-button');
 
-	//mモーダルのバツ印がクリックされた時
+	//モーダルのバツ印がクリックされた時
 	modalCloseBtn.addEventListener('click', modalClose);
 	function modalClose() {
 		modalBackground.style.display = 'none';
@@ -160,10 +157,16 @@
 		};
 		reader.readAsDataURL(file2);//Data URL形式（Base64エンコードされた文字列）にする onloadのイベントハンドラを登録してから記載する
 
+		let cropRect = { x: 50, y: 50, w: 400, h: 400 };//オブジェクト;
+		let handleSize = 12;
+		
+		//スマホ表示時は初期トリミング範囲を小さくしてハンドルサイズを大きくする
+		if (document.documentElement.clientWidth < 767) {
+			cropRect = { x: 50, y: 50, w: 100, h: 100 };//オブジェクト
+			handleSize = 24;
+		};
 
 		//トリミング範囲の矩形
-		let cropRect = { x: 50, y: 50, w: 210, h: 148 };//オブジェクト
-		const handleSize = 12;
 		let isDragging = false;
 		let dragOffsetX = 0;
 		let dragOffsetY = 0;
@@ -182,24 +185,24 @@
 			ctxModal.lineWidth = 2;
 			ctxModal.strokeRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);//枠線を描画
 
-			// Draw handles (四隅＋4辺)
+			// Draw handles (四隅＋4辺) //getAllHandles()で配列を取得してforEachで繰り返し
 			getAllHandles().forEach(h => drawHandle(h.x, h.y));
 		}
 
-		//ハンドル＝トリミング範囲の小さい8つの四角形
+		//ハンドル＝トリミング範囲の小さい8つの四角形を描画
 		function drawHandle(x, y) {
 			ctxModal.fillStyle = 'white';
 			ctxModal.strokeStyle = 'blue';
 			ctxModal.lineWidth = 2;
 			ctxModal.beginPath();
 			ctxModal.rect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
-			ctxModal.fill();
+			ctxModal.fill();//塗りつぶし
 			ctxModal.stroke();
 		}
 
 		function getAllHandles() {
 			const x = cropRect.x, y = cropRect.y, w = cropRect.w, h = cropRect.h;
-			//nwの命名はnorth west（北西）
+			//nwの命名はnorth west（北西）トリミングボックスのハンドル部分をを計算
 			return [//配列にオブジェクトが入っている
 				{ dir: 'nw', x: x, y: y },
 				{ dir: 'n', x: x + w / 2, y: y },
@@ -227,9 +230,11 @@
 			return getAllHandles().find(h =>
 				x >= h.x - handleSize / 2 && x <= h.x + handleSize / 2 &&
 				y >= h.y - handleSize / 2 && y <= h.y + handleSize / 2
-			)?.dir || '';
+				//xが数値以上数値以下かつyが数値以上数値以下
+			)?.dir || '';//論理和（OR演算子）||は、expr1 || expr2 expr1 を true と見ることができる場合は、expr1 を返します。そうでない場合は、expr2 を返す
 		}
 
+		//トリミングボックスの範囲内であればtrueを返す
 		function inRect(x, y) {
 			return (
 				x >= cropRect.x &&
@@ -240,9 +245,10 @@
 		}
 
 		function getPosFromEvent(e) {
-			const rect = canvasModal.getBoundingClientRect();
+			const rect = canvasModal.getBoundingClientRect();//要素の現在のビューポート（ブラウザの表示領域）に対する相対位置とサイズを示す DOMRect オブジェクトを返す
 			if (e.touches && e.touches.length > 0) {
 				return {
+					//クライアン座標からcanvasの左上の座標を引くことでcanvasの左上を(0,0)とした座標を取得
 					x: e.touches[0].clientX - rect.left,
 					y: e.touches[0].clientY - rect.top,
 				};
@@ -254,6 +260,7 @@
 			}
 		}
 
+		//カーソルの形状を変更
 		function setCursor(e) {
 			const pos = getPosFromEvent(e);
 			const dir = getHandleAt(pos.x, pos.y);
@@ -267,7 +274,9 @@
 		}
 
 		function startDrag(e) {
-			e.preventDefault();
+			e.preventDefault();//イベントのデフォルト動作（例えばテキストの選択や画面のスクロールなど）を防止。
+
+
 			const pos = getPosFromEvent(e);
 			const handle = getHandleAt(pos.x, pos.y);
 			if (handle) {
@@ -275,19 +284,20 @@
 				resizeDir = handle;
 			} else if (inRect(pos.x, pos.y)) {
 				isDragging = true;
-				dragOffsetX = pos.x - cropRect.x;
-				dragOffsetY = pos.y - cropRect.y;
+				dragOffsetX = pos.x - cropRect.x;//方角の8つの点からの距離
+				dragOffsetY = pos.y - cropRect.y;//方角の8つの点からの距離
 			}
 		}
 
 		function moveDrag(e) {
-			if (!isDragging && !isResizing) {
+			if (!isDragging && !isResizing) {//trueかつtrueのとき（リサイズも移動でも出来ないとき）i.e. トリミングボックスの範囲外の時
 				setCursor(e);
 				return;
 			}
 			e.preventDefault();
 			const pos = getPosFromEvent(e);
 
+			//★
 			if (isDragging) {
 				cropRect.x = Math.max(0, Math.min(canvasModal.width - cropRect.w, pos.x - dragOffsetX));
 				cropRect.y = Math.max(0, Math.min(canvasModal.height - cropRect.h, pos.y - dragOffsetY));
@@ -325,6 +335,7 @@
 			draw();
 		}
 
+		//ブーリアン値を初期状態に戻す
 		function endDrag(e) {
 			isDragging = false;
 			isResizing = false;
@@ -342,7 +353,7 @@
 		canvasModal.addEventListener('touchend', endDrag);
 		canvasModal.addEventListener('touchcancel', endDrag);
 
-		document.getElementById('cropButton').addEventListener('click', () => {
+		document.getElementById('crop-button').addEventListener('click', () => {
 			resultCanvas.width = cropRect.w;
 			resultCanvas.height = cropRect.h;
 			resultCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
@@ -369,7 +380,7 @@
 			const file = new File([blob], "cropped.png", { type: "image/png" });
 			const dataTransfer = new DataTransfer();
 			dataTransfer.items.add(file);
-			const inputElem = document.getElementById('imgimport');
+			const inputElem = document.getElementById('input-img-import');
 			inputElem.files = dataTransfer.files;
 		});
 	}
@@ -420,19 +431,20 @@
 		canvas.height = baseImg.height;
 
 		//画面幅よりテンプレート画像が大きい場合は縮小する
-		if (document.documentElement.clientWidth < baseImg.width) {
-			const screenWidth = document.documentElement.clientWidth;
-			const scale = Math.min(screenWidth / baseImg.width, 1);
-			document.body.style.transformOrigin = 'left top';
-			document.body.style.transform = `scale(${scale})`;
-		}
+		// if (document.documentElement.clientWidth < baseImg.width) {
+		// 	const screenWidth = document.documentElement.clientWidth;
+		// 	const scale = Math.min(screenWidth / baseImg.width, 1);
+		// 	document.body.style.transformOrigin = 'left top';
+		// 	document.body.style.transform = `scale(${scale})`;
+		// }
+		// alert("幅" + canvas.width + "高さ" + canvas.height);
 	};
 
 
-	// 画像生成ボタンが押され時の処理
-	const generateBtn = document.getElementById('generate-btn');
+	// 画像生成ボタンが押された時の処理
+	const generateBtn = document.getElementById('generate-button');
 	const downloadLink = document.getElementById('downloadlink');
-	const downloadBtn = document.getElementById('download-btn');
+	const downloadBtn = document.getElementById('download-button');
 
 
 	const inputText = document.getElementById('input-blader-name');
@@ -456,30 +468,34 @@
 		const textTournament = inputTournament.value.trim();
 		const textFreeComment = inputFreeComment.value.split('\n'); // 改行で分割して配列にする;
 
-
+		generateBtn.style.display = 'none';
+		reEditBtn.style.display = 'block';
 
 		//Canvasに画像を描画
 		ctx.drawImage(baseImg, 0, 0);
 
 
 		// 文字スタイル設定
-		ctx.font = `30px ${fontName}`;
+		ctx.font = `60px ${fontName}`;
 		ctx.fillStyle = colorpicker.value;
 		ctx.textAlign = 'start';//文字の位置は下記の数値が文字列のどこに位置するか
 
 		// 真ん中に記入する場合ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-		ctx.fillText(text, 10, 100);
-		ctx.fillText(textAge, 10, 180);
-		ctx.fillText(textGender, 230, 180);
-		ctx.fillText(textLocation, 10, 260);
-		ctx.fillText(textGeneration, 10, 380);
-		ctx.fillText(textMaxPower, 10, 500);
-		ctx.fillText(textLauncher, 220, 500);
-		ctx.fillText(textTournament, 440, 500);
+		// ctx.fillText(text, 10, 100);
+		ctx.fillText(text, canvas.width * 0.06, canvas.height * 0.15);
+		ctx.fillText(textLocation, canvas.width * 0.06, canvas.height * 0.25);
+		ctx.fillText(textAge, canvas.width * 0.06, canvas.height * 0.4);
+		ctx.fillText(textGender, canvas.width * 0.36, canvas.height * 0.4);
+		ctx.fillText(textMaxPower, canvas.width * 0.66, canvas.height * 0.4);
+
+		ctx.fillText(textGeneration, canvas.width * 0.06, canvas.height * 0.55);
+
+		ctx.fillText(textLauncher, canvas.width * 0.06, canvas.height * 0.7);
+		ctx.fillText(textTournament, canvas.width * 0.56, canvas.height * 0.7);
 
 		//フリーコメントは1行ごとに場所を指定する
 		textFreeComment.forEach((line, index) => {
-			ctx.fillText(line, 10, 32 * index + 600); // 左寄せ10px、縦位置調整
+			ctx.fillText(line, canvas.width * 0.06, canvas.height * 0.04 * index + canvas.height * 0.8); // 左寄せ10px、縦位置調整
 		});
 
 		//Canvasで文字を表示するので、input要素を非表示にする
@@ -515,7 +531,7 @@
 			overlayImg.onload = function () {
 				// サイズ調整したい場合はdrawImageの引数で変更可能
 				// ctx.drawImage(overlayImg, 50, 50, overlayImg.width, overlayImg.height);
-				ctx.drawImage(overlayImg, 440, 50, 210, 148);
+				ctx.drawImage(overlayImg, canvas.width * 0.618333, canvas.height * 0.09, canvas.width * 0.333, canvas.height * 0.25);
 
 				// Canvas画像表示
 				//canvas要素に描画された内容を「PNG形式のBase64データURL」に変換 画像のホスト側がCORS許可ヘッダー出していないと処理が動かない
@@ -533,9 +549,12 @@
 
 
 	// 再編集ボタンが押されたら実行
-	const reEditBtn = document.getElementById('re-edit-btn');
+	const reEditBtn = document.getElementById('re-edit-button');
 
 	reEditBtn.addEventListener('click', () => {
+
+		generateBtn.style.display = 'block';
+		reEditBtn.style.display = 'none';
 
 		inputFreeComment.style.display = 'inline';
 		imgInputLabel.style.display = 'inline-block';
@@ -577,33 +596,31 @@
 		margin: 0;
 	}
 
-	@media screen and (min-width: 768px) {
-		.introduce-wrapper {
+	@media screen and (min-width: 900px) {
+		#main-container {
 			display: flex;
 		}
 	}
 
 
-	.introduce-wrapper {
+
+
+	#left-content {
 		position: relative;
 	}
 
-	.right-container {
-		width: 175%;
-	}
-
-	.img-import-wrapper {
+	#img-import-content {
 		position: absolute;
-		top: 100px;
-		left: 450px;
-		width: 200px;
-		height: 200px;
+		top: 20%;
+		left: 68%;
+		width: 25%;
+		height: 10%;
 		overflow: hidden;
 		font-size: 10px !important;
 		padding: 0;
 	}
 
-	.custom-file-button {
+	#label-img-import {
 		display: inline-block;
 		padding: 10px 20px;
 		background-color: white;
@@ -639,74 +656,74 @@
 
 	#input-blader-name {
 		position: absolute;
-		top: 75px;
-		left: 10px;
-		height: 40px;
-		width: 400px;
-	}
-
-	#input-age {
-		position: absolute;
-		top: 150px;
-		left: 10px;
-		height: 40px;
-		width: 150px;
-	}
-
-	#input-gender {
-		position: absolute;
-		top: 150px;
-		left: 250px;
-		height: 40px;
-		width: 150px;
+		top: 12%;
+		left: 6%;
+		height: 4%;
+		width: 53%;
 	}
 
 	#input-location {
 		position: absolute;
-		top: 230px;
-		left: 10px;
-		height: 60px;
-		width: 600px;
+		top: 23%;
+		left: 6%;
+		height: 4%;
+		width: 53%;
 	}
 
-	#input-generation {
+	#input-age {
 		position: absolute;
-		top: 350px;
-		left: 10px;
-		height: 60px;
-		width: 600px;
+		top: 38%;
+		left: 6%;
+		height: 4%;
+		width: 26%;
+	}
+
+	#input-gender {
+		position: absolute;
+		top: 38%;
+		left: 37%;
+		height: 4%;
+		width: 26%;
 	}
 
 	#input-max-power {
 		position: absolute;
-		top: 455px;
-		left: 10px;
-		height: 60px;
-		width: 150px;
+		top: 38%;
+		left: 67%;
+		height: 4%;
+		width: 26%;
+	}
+
+	#input-generation {
+		position: absolute;
+		top: 50%;
+		left: 6%;
+		height: 4%;
+		width: 87%;
 	}
 
 	#input-launcher {
 		position: absolute;
-		top: 455px;
-		left: 225px;
-		height: 60px;
-		width: 200px;
+		top: 66%;
+		left: 6%;
+		height: 4%;
+		width: 42%;
 	}
 
 	#input-tournament {
 		position: absolute;
-		top: 455px;
-		left: 440px;
-		height: 60px;
-		width: 200px;
+		top: 66%;
+		left: 52%;
+		height: 4%;
+		width: 42%;
 	}
 
 	#input-free-comment {
 		position: absolute;
-		top: 570px;
-		left: 10px;
-		height: 300px;
-		width: 600px;
+		top: 77%;
+		left: 6%;
+		height: 17%;
+		width: 87%;
 	}
 
 	#colorpicker-wrapper {
@@ -738,7 +755,7 @@
 
 	button {
 		font-size: 30px;
-		background-color: #f59b64;
+		background-color: #333;
 		box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.3);
 		border-radius: 20px;
 		color: white;
@@ -749,14 +766,19 @@
 		margin: 10px;
 	}
 
-	.button-wrapper {
+	#button-content {
 		display: flex;
 	}
 
+	#downloadlink{
+		color: white;
+		text-decoration: none;
+	}
 
 	@media screen and (max-width: 700px) {
-		#modal-contents {
-			width: 175%;
+		#modal-container {
+			/* width: 100%; */
+			height: 100vh;
 		}
 	}
 
@@ -775,7 +797,7 @@
 		/*モーダル外の背景*/
 	}
 
-	.modal-content {
+	#modal-content {
 		background-color: #f4f4f4;
 		margin: 5% auto;
 		width: 75%;
@@ -794,11 +816,11 @@
 		}
 	}
 
-	.modal-header h1 {
+	#modal-header h1 {
 		margin: 1rem 0;
 	}
 
-	.modal-header {
+	#modal-header {
 		background: lightblue;
 		padding: 3px 15px;
 		display: flex;
@@ -823,6 +845,53 @@
 		touch-action: none;
 		cursor: crosshair;
 		z-index: 2;
+	}
+
+	/* 900px以下の画面幅の場合 */
+	@media screen and (max-width: 900px) {
+		#result-img {
+			width: 100%;
+		}
+
+
+	}
+
+	@media (min-width: 425px) and (max-width: 900px) {
+
+		input[type="text"],
+		textarea {
+			font-size: 24px;
+		}
+
+		#label-img-import {
+			font-size: 12px;
+			padding: 5px 10px;
+		}
+	}
+
+	@media screen and (max-width: 424px) {
+
+		#modal-header h1 {
+			font-size: 18px;
+		}
+
+		#modal-content {
+			width: 95%;
+		}
+
+		input[type="text"],
+		textarea {
+			font-size: 20px;
+		}
+
+		#label-img-import {
+			font-size: 10px;
+			padding: 5px 10px;
+		}
+
+		#colorpicker-label ,#fontselector-wrapper,button{
+			font-size: 20px;
+		}
 	}
 </style>
 
