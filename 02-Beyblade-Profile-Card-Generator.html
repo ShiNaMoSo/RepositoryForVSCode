@@ -3,7 +3,7 @@
 <!-- HTML ケバブケース 変数は使う処理の近くに宣言 変数はローワーキャメルケース  camelCase-->
 <!-- wrapper ＞ container ＞ content ※Contentsはリストを囲む場合など-->
 <!-- 基本idを使う class -->
- <!-- 特殊な要素の命名は、要素名をいれる  label-img-import-->
+<!-- 特殊な要素の命名は、要素名をいれる  label-img-import-->
 
 <head>
 	<meta charset="UTF-8">
@@ -48,7 +48,7 @@
 					</select>
 				</div>
 				<div id="button-content">
-					<button type="button" id="generate-button">画像生成</button>
+					<button type="button" id="generate-button">確定</button>
 					<button type="button" id="re-edit-button" style="display: none;">再編集</button>
 					<button type="button" id="download-button" style="display:none;"><a id="downloadlink" download="image.png">ダウンロード</a></button>
 				</div>
@@ -61,8 +61,8 @@
 					<span id="modal-close-button">&times;</span>
 				</div>
 				<div id="modal-body">
-					<button id="crop-button">確定</button>
 					<canvas id="canvas-modal" width="100%"></canvas>
+					<button id="crop-button">確定</button>
 					<canvas id="resultCanvas" style="display: none;"></canvas>
 					<img id="preview">
 				</div>
@@ -125,8 +125,13 @@
 		modalBackground.style.display = 'block';
 
 		const modalBody = document.getElementById('modal-body');
-		const drawWidth = modalBody.clientWidth - 40; // 40はパディング分
-		const maxHeight = modalBody.clientHeight;
+		const HorizontalPadding = parseFloat(window.getComputedStyle(modalBody).paddingRight)*2;//モーダルの横の余白を取得
+		let drawWidth = modalBody.clientWidth - HorizontalPadding;
+
+		const ModalContent = document.getElementById('modal-content');
+		const ModalHeader = document.getElementById('modal-header');
+		const VerticalMargin = parseFloat(window.getComputedStyle(ModalContent).marginTop)*2+parseFloat(window.getComputedStyle(ModalHeader).height)*2;//モーダルの縦の余白を取得
+		let maxHeight = window.innerHeight-VerticalMargin;
 		let drawHeight;
 
 		const file2 = e.target.files[0];
@@ -144,13 +149,21 @@
 
 				// 画像の縦横比とコンテナの縦横比を計算
 				const imgRatio = img.width / img.height;
-				const containerRatio = drawWidth / maxHeight;
+				// const containerRatio = drawWidth / maxHeight;
 
 				// Canvasの高さをCanvasの横幅を元に算出（画像の比率と同じになるようにする）
 				drawHeight = drawWidth / imgRatio;
 
 				// Canvasサイズを描画サイズに合わせて設定
 				canvasModal.height = drawHeight;
+
+				// もし高さがコンテナの高さを超える場合は、高さをコンテナに合わせて、幅を調整
+				if (drawHeight > maxHeight) {
+					drawHeight = maxHeight;
+					canvasModal.height = drawHeight;
+					drawWidth = drawHeight * imgRatio;
+					canvasModal.width = drawWidth;
+				}
 
 				draw();
 			};
@@ -159,7 +172,7 @@
 
 		let cropRect = { x: 50, y: 50, w: 400, h: 400 };//オブジェクト;
 		let handleSize = 12;
-		
+
 		//スマホ表示時は初期トリミング範囲を小さくしてハンドルサイズを大きくする
 		if (document.documentElement.clientWidth < 767) {
 			cropRect = { x: 50, y: 50, w: 100, h: 100 };//オブジェクト
@@ -276,7 +289,6 @@
 		function startDrag(e) {
 			e.preventDefault();//イベントのデフォルト動作（例えばテキストの選択や画面のスクロールなど）を防止。
 
-
 			const pos = getPosFromEvent(e);
 			const handle = getHandleAt(pos.x, pos.y);
 			if (handle) {
@@ -290,15 +302,15 @@
 		}
 
 		function moveDrag(e) {
-			if (!isDragging && !isResizing) {//trueかつtrueのとき（リサイズも移動でも出来ないとき）i.e. トリミングボックスの範囲外の時
+			if (!isDragging && !isResizing) {//マウスクリックして移動中（ドラッグ）以外の時実行 どちらかが!trueになるのはマウスクリックして移動中（ドラッグ）中のみ
 				setCursor(e);
 				return;
 			}
 			e.preventDefault();
 			const pos = getPosFromEvent(e);
 
-			//★
 			if (isDragging) {
+				//pos.x - dragOffsetXで移動先のトリミング範囲の左上のX座標と、canvasModal.width - cropRect.wでキャンバスの右端からトリミング範囲の幅を引いた値を比較して小さい方を採用し（canvasModal.width - cropRect.wより大きい場合はトリミング範囲が場外になるので）、さらに0と比較して大きい方を採用することで、X座標がマイナスにならないようにしている（画像外に出ないように）
 				cropRect.x = Math.max(0, Math.min(canvasModal.width - cropRect.w, pos.x - dragOffsetX));
 				cropRect.y = Math.max(0, Math.min(canvasModal.height - cropRect.h, pos.y - dragOffsetY));
 			} else if (isResizing) {
@@ -309,11 +321,11 @@
 						w += x - pos.x; h += y - pos.y; x = pos.x; y = pos.y; break;
 					case 'n':
 						h += y - pos.y; y = pos.y; break;
-					case 'ne':
+					case 'ne'://xは左上の座標なので変わらない
 						w = pos.x - x; h += y - pos.y; y = pos.y; break;
 					case 'e':
 						w = pos.x - x; break;
-					case 'se':
+					case 'se'://xとyは左上の座標なので変わらない
 						w = pos.x - x; h = pos.y - y; break;
 					case 's':
 						h = pos.y - y; break;
@@ -325,13 +337,15 @@
 				// 最小サイズ制御
 				w = Math.max(w, minW);
 				h = Math.max(h, minH);
+
 				// 画像外に出ないよう制御
-				if (x < 0) { w += x; x = 0; }
+				if (x < 0) { w += x; x = 0; }//widthを飛び出ている分足す
 				if (y < 0) { h += y; y = 0; }
-				if (x + w > canvasModal.width) w = canvasModal.width - x;
+				if (x + w > canvasModal.width) w = canvasModal.width - x;//widthは最大でもcanvasModal.widthまでの大きさになるべきなので、xが0から動いた分を引くことで調整
 				if (y + h > canvasModal.height) h = canvasModal.height - y;
 				cropRect = { x, y, w, h };
 			}
+			//ここまでで計算しかしてないので、draw();で実際に描画する
 			draw();
 		}
 
@@ -342,16 +356,15 @@
 		}
 
 
-		canvasModal.addEventListener('mousedown', startDrag);//マウスボタン押下
+		canvasModal.addEventListener('mousedown', startDrag);//マウスボタン押下 (ドラッグの開始時にも)トリミングとハンドル範囲内以外なら何もしない
 		canvasModal.addEventListener('mousemove', moveDrag);//マウス移動
 		canvasModal.addEventListener('mouseup', endDrag);//マウスボタンを離す
 		canvasModal.addEventListener('mouseleave', endDrag);//マウスがキャンバスから離れた
-		canvasModal.addEventListener('mousemove', setCursor);
 
 		canvasModal.addEventListener('touchstart', startDrag);
 		canvasModal.addEventListener('touchmove', moveDrag);
 		canvasModal.addEventListener('touchend', endDrag);
-		canvasModal.addEventListener('touchcancel', endDrag);
+		canvasModal.addEventListener('touchcancel', endDrag);//システム（着信やアラーム）などによってタッチ操作がキャンセル
 
 		document.getElementById('crop-button').addEventListener('click', () => {
 			resultCanvas.width = cropRect.w;
@@ -359,13 +372,13 @@
 			resultCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
 			resultCtx.drawImage(
 				img,
-				cropRect.x * (img.width / drawWidth), // 元画像の切り取り開始位置のX座標（右方向）
+				cropRect.x * (img.width / drawWidth), // 元画像の切り取り開始位置の左上のX座標
 				cropRect.y * (img.height / drawHeight),
 				cropRect.w * (img.width / drawWidth),// 描画する幅（切り取りサイズと同じなのでリサイズなし）
 				cropRect.h * (img.height / drawHeight),
+				0,//キャンバス上に描画する左上の座標
 				0,
-				0,
-				cropRect.w,
+				cropRect.w,//描画先での幅（拡大/縮小）
 				cropRect.h
 			);
 			updateInputFileFromCanvas(resultCanvas);
@@ -374,14 +387,14 @@
 
 	});
 
-
+//input type="file"の内容をCanvasの内容で更新する関数(これ以外の方法は無さそう)
 	function updateInputFileFromCanvas(resultCanvas) {
-		resultCanvas.toBlob(blob => {
+		resultCanvas.toBlob(blob => {//blobはBinary Large Object
 			const file = new File([blob], "cropped.png", { type: "image/png" });
-			const dataTransfer = new DataTransfer();
+			const dataTransfer = new DataTransfer();//標準APIのDataTransferオブジェクトを作成し、ファイルを一時的に格納できる箱を用意。
 			dataTransfer.items.add(file);
-			const inputElem = document.getElementById('input-img-import');
-			inputElem.files = dataTransfer.files;
+			inputElem = document.getElementById('input-img-import');
+			inputElem.files = dataTransfer.files;//input要素のfilesプロパティにDataTransferオブジェクトのfilesプロパティを代入することで、input要素の選択されたファイルを更新できる
 		});
 	}
 
@@ -429,15 +442,6 @@
 	baseImg.onload = () => {
 		canvas.width = baseImg.width;
 		canvas.height = baseImg.height;
-
-		//画面幅よりテンプレート画像が大きい場合は縮小する
-		// if (document.documentElement.clientWidth < baseImg.width) {
-		// 	const screenWidth = document.documentElement.clientWidth;
-		// 	const scale = Math.min(screenWidth / baseImg.width, 1);
-		// 	document.body.style.transformOrigin = 'left top';
-		// 	document.body.style.transform = `scale(${scale})`;
-		// }
-		// alert("幅" + canvas.width + "高さ" + canvas.height);
 	};
 
 
@@ -458,6 +462,15 @@
 	const inputFreeComment = document.getElementById('input-free-comment');
 
 	generateBtn.addEventListener('click', () => {
+		//プロフィール画像処理
+		const file = inputImg.files[0];
+
+		// 画像を取り込んでいない場合処理終了
+		if (!file) {
+			alert('画像を選択してください。');
+			return;
+		}
+
 		const text = inputText.value.trim();
 		const textAge = inputAge.value.trim();
 		const textGender = inputGender.value.trim();
@@ -507,15 +520,6 @@
 		imgInputLabel.style.display = 'none';
 
 		inputFreeComment.style.display = 'none';
-
-		//プロフィール画像処理
-		const file = inputImg.files[0];
-
-		// 画像を取り込んでいない場合処理終了
-		if (!file) {
-			alert('画像を選択してください。');
-			return;
-		}
 
 		// FileReaderでローカル画像を読み込む
 		const reader = new FileReader();
@@ -770,7 +774,7 @@
 		display: flex;
 	}
 
-	#downloadlink{
+	#downloadlink {
 		color: white;
 		text-decoration: none;
 	}
@@ -785,22 +789,20 @@
 
 	.modal {
 		position: fixed;
-		z-index: 1;
-		/*数字が大きい方が上*/
+		z-index: 1;/*数字が大きい方が上*/
 		left: 0;
 		top: 0;
 		height: 100%;
 		width: 100%;
-		overflow: auto;
-		/*ボックスに収まらない内容をどう表示するかは、ユーザーエージェントに依存する。内容が収まらない場合には、スクロールバーなどが表示される*/
-		background-color: rgba(0, 0, 0, 0.5);
-		/*モーダル外の背景*/
+		overflow: auto;/*ボックスに収まらない内容をどう表示するかは、ユーザーエージェントに依存する。内容が収まらない場合には、スクロールバーなどが表示される*/
+		background-color: rgba(0, 0, 0, 0.5);/*モーダル外の背景色*/
 	}
 
 	#modal-content {
 		background-color: #f4f4f4;
-		margin: 5% auto;
-		width: 75%;
+		margin: 2% auto;
+		width: 90%;
+		/* min-height: 85%; */
 		box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
 		animation-name: modalopen;
 		animation-duration: 1s;
@@ -837,6 +839,7 @@
 
 	#modal-body {
 		padding: 10px 20px;
+		/* height: 90%; */
 		color: black;
 	}
 
@@ -889,7 +892,9 @@
 			padding: 5px 10px;
 		}
 
-		#colorpicker-label ,#fontselector-wrapper,button{
+		#colorpicker-label,
+		#fontselector-wrapper,
+		button {
 			font-size: 20px;
 		}
 	}
