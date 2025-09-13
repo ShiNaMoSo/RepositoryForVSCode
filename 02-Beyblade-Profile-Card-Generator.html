@@ -77,7 +77,6 @@
 	const canvas = document.createElement('canvas');//この時点ではJavaScriptのメモリ上で生成する。HTMLツリー（DOM）には出現しない
 	const ctx = canvas.getContext('2d');
 
-
 	//初期画像処理
 	const imgSrc = "https://shinamoso.github.io/RepositoryForVSCode/img/02-prf.png"; // 元画像のURL
 	const resultImg = document.getElementById('result-img');
@@ -107,6 +106,7 @@
 		}
 	};
 
+	const devicePixelRatio = window.devicePixelRatio || 1;//undefinedや0/nullなど「偽」の場合、右側（1）を返す
 
 	//画像選択時の処理
 	const canvasModal = document.getElementById('canvas-modal');
@@ -145,24 +145,30 @@
 			img.onload = () => {
 
 				//モーダル内に表示するCanvasサイズを調整
-				canvasModal.width = drawWidth;
+				//canvasは物理ピクセル
+				canvasModal.width = drawWidth * devicePixelRatio;
+				//CSSは論理ピクセル
+				canvasModal.style.width = drawWidth + "px";
 
 				// 画像の縦横比とコンテナの縦横比を計算
 				const imgRatio = img.width / img.height;
 				// const containerRatio = drawWidth / maxHeight;
 
 				// Canvasの高さをCanvasの横幅を元に算出（画像の比率と同じになるようにする）
-				drawHeight = drawWidth / imgRatio;
+				drawHeight = (drawWidth / imgRatio);
 
 				// Canvasサイズを描画サイズに合わせて設定
-				canvasModal.height = drawHeight;
+				canvasModal.height = drawHeight * devicePixelRatio;
+				canvasModal.style.height = drawHeight + "px";
 
 				// もし高さがコンテナの高さを超える場合は、高さをコンテナに合わせて、幅を調整
 				if (drawHeight > maxHeight) {
 					drawHeight = maxHeight;
-					canvasModal.height = drawHeight;
+					canvasModal.height = drawHeight * devicePixelRatio;
+					canvasModal.style.height = drawHeight + "px";
 					drawWidth = drawHeight * imgRatio;
-					canvasModal.width = drawWidth;
+					canvasModal.width = drawWidth * devicePixelRatio;
+					canvasModal.style.width = drawWidth + "px";
 				}
 
 				draw();
@@ -189,6 +195,9 @@
 		function draw() {
 			//念のためクリアしてから描画
 			ctxModal.clearRect(0, 0, canvasModal.width, canvasModal.height);
+
+			//devicePixelRatio分拡大★
+			ctxModal.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
 			ctxModal.drawImage(img, 0, 0, drawWidth, drawHeight);
 
 			// トリミング範囲を描画
@@ -367,9 +376,12 @@
 		canvasModal.addEventListener('touchcancel', endDrag);//システム（着信やアラーム）などによってタッチ操作がキャンセル
 
 		document.getElementById('crop-button').addEventListener('click', () => {
-			resultCanvas.width = cropRect.w;
-			resultCanvas.height = cropRect.h;
+			resultCanvas.width = cropRect.w* devicePixelRatio;
+			resultCanvas.style.width = cropRect.w + "px";
+			resultCanvas.height = cropRect.h* devicePixelRatio;
+			resultCanvas.style.height = cropRect.h + "px";
 			resultCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+			resultCtx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
 			resultCtx.drawImage(
 				img,
 				cropRect.x * (img.width / drawWidth), // 元画像の切り取り開始位置の左上のX座標
@@ -533,8 +545,7 @@
 			overlayImg.src = e.target.result;
 
 			overlayImg.onload = function () {
-				// サイズ調整したい場合はdrawImageの引数で変更可能
-				// ctx.drawImage(overlayImg, 50, 50, overlayImg.width, overlayImg.height);
+				// サイズ調整したい場合はdrawImageの引数で変更可
 				ctx.drawImage(overlayImg, canvas.width * 0.618333, canvas.height * 0.09, canvas.width * 0.333, canvas.height * 0.25);
 
 				// Canvas画像表示
@@ -588,7 +599,6 @@
 </script>
 
 <!-- ↓このページ独自のCSS追加 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 <style>
 	@font-face {
 		font-family: 'DotWeb';
@@ -633,7 +643,7 @@
 		font-weight: bold;
 		font-size: 16px;
 		user-select: none;
-		border: 1px solid #333;
+		border: 1px solid #333333;
 	}
 
 	input[type="text"],
@@ -759,11 +769,11 @@
 
 	button {
 		font-size: 30px;
-		background-color: #333;
+		background-color: #333333;
 		box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.3);
 		border-radius: 20px;
 		color: white;
-		border: 1px solid #333;
+		border: 1px solid #333333;
 		padding: 15px 30px;
 		cursor: pointer;
 		transition: all 0.2s ease-in-out;
@@ -823,7 +833,8 @@
 	}
 
 	#modal-header {
-		background: lightblue;
+		background: #333333;
+		color: white;
 		padding: 3px 15px;
 		display: flex;
 		justify-content: space-between;
