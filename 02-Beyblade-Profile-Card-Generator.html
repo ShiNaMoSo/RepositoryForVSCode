@@ -19,15 +19,15 @@
 			<div id="left-content">
 				<img id="result-img" alt="テンプレート画像" width="900px">
 				<form id="textform">
-					<input type="text" id="input-blader-name" placeholder="ここに文字を入力" />
-					<input type="text" id="input-age" placeholder="例：20代後半" />
-					<input type="text" id="input-gender" placeholder="例：男性" />
-					<input type="text" id="input-location" placeholder="例：福岡市周辺" />
-					<input type="text" id="input-generation" placeholder="例：メタベイ、ベイブレードX" />
-					<input type="text" id="input-max-power" placeholder="例：1万" />
-					<input type="text" id="input-launcher" placeholder="例：ロングワインダー派" />
-					<input type="text" id="input-tournament" maxlength="7" placeholder="最大7文字まで" />
-					<textarea rows="4" id="input-free-comment" cols="20" placeholder="例：まずはゆるく繋がれるとうれしいです"></textarea>
+					<input type="text" id="input-blader-name" maxlength="16" placeholder="ここに文字を入力" />
+					<input type="text" id="input-location" maxlength="16" placeholder="例：福岡市周辺" />
+					<input type="text" id="input-age" maxlength="7" placeholder="例：20代後半" />
+					<input type="text" id="input-gender" maxlength="7" placeholder="例：男性" />
+					<input type="text" id="input-max-power" maxlength="7" placeholder="例：1万" />
+					<input type="text" id="input-generation" maxlength="26" placeholder="例：メタベイ、ベイブレードX" />
+					<input type="text" id="input-launcher" maxlength="12" placeholder="例：ロングワインダー派" />
+					<input type="text" id="input-tournament" maxlength="12" placeholder="例:なしエンジョイ勢" />
+					<textarea rows="4" id="input-free-comment" cols="26" placeholder="例：まずはゆるく繋がれるとうれしいです"></textarea>
 				</form>
 				<div id="img-import-content">
 					<label for="input-img-import" id="label-img-import">アイコン画像を選択</label>
@@ -72,7 +72,8 @@
 </body>
 
 <!-- ↓このページ独自のJS追加 -->
-<script src="/js/02-main.js"></script>
+<!-- <script src="/js/02-main.js"></script> -->
+<script src="https://shinamoso.github.io/RepositoryForVSCode/js/02-main.js"></script>
 
 <!-- ↓このページ独自のCSS追加 -->
 <style>

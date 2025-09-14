@@ -26,6 +26,11 @@ const imgInputLabel = document.getElementById('label-img-import');
 const modalBackground = document.getElementById('modal-container');
 const modalCloseBtn = document.getElementById('modal-close-button');
 
+//画面サイズ
+const mediaQuerySp = window.matchMedia('(max-width: 425px)');
+const mediaQueryTablet = window.matchMedia('(min-width: 426px)and (max-width: 1023px)');
+const mediaQueryPc = window.matchMedia('(min-width: 1024px)');
+
 
 //モーダルのバツ印がクリックされた時
 modalCloseBtn.addEventListener('click', modalClose);
@@ -108,10 +113,12 @@ inputImg.addEventListener('change', (e) => {
 	let handleSize = 12;
 
 	//スマホ表示時は初期トリミング範囲を小さくしてハンドルサイズを大きくする
-	if (document.documentElement.clientWidth < 767) {
+	if (document.documentElement.clientWidth < 768) {
 		cropRect = { x: 50, y: 50, w: 100, h: 100 };//オブジェクト
 		handleSize = 24;
-	};
+	}else if(document.documentElement.clientWidth < 1024){
+		cropRect = { x: 50, y: 50, w: 200, h: 200 };
+	}
 
 	//トリミング範囲の矩形
 	let isDragging = false;
@@ -429,7 +436,10 @@ generateBtn.addEventListener('click', () => {
 
 
 	// 文字スタイル設定
-	ctx.font = `60px ${fontName}`;
+	ctx.font = `bold 40px ${fontName}`;
+	if(mediaQuerySp.matches){
+		ctx.font = `bold 60px ${fontName}`;
+	}
 	ctx.fillStyle = colorpicker.value;
 	ctx.textAlign = 'start';//文字の位置は下記の数値が文字列のどこに位置するか
 
@@ -437,18 +447,18 @@ generateBtn.addEventListener('click', () => {
 	// ctx.fillText(text, 10, 100);
 	ctx.fillText(text, canvas.width * 0.06, canvas.height * 0.15);
 	ctx.fillText(textLocation, canvas.width * 0.06, canvas.height * 0.25);
-	ctx.fillText(textAge, canvas.width * 0.06, canvas.height * 0.4);
-	ctx.fillText(textGender, canvas.width * 0.36, canvas.height * 0.4);
-	ctx.fillText(textMaxPower, canvas.width * 0.66, canvas.height * 0.4);
+	ctx.fillText(textAge, canvas.width * 0.07, canvas.height * 0.41);
+	ctx.fillText(textGender, canvas.width * 0.37, canvas.height * 0.41);
+	ctx.fillText(textMaxPower, canvas.width * 0.67, canvas.height * 0.41);
 
-	ctx.fillText(textGeneration, canvas.width * 0.06, canvas.height * 0.55);
+	ctx.fillText(textGeneration, canvas.width * 0.06, canvas.height * 0.54);
 
 	ctx.fillText(textLauncher, canvas.width * 0.06, canvas.height * 0.7);
 	ctx.fillText(textTournament, canvas.width * 0.56, canvas.height * 0.7);
 
 	//フリーコメントは1行ごとに場所を指定する
 	textFreeComment.forEach((line, index) => {
-		ctx.fillText(line, canvas.width * 0.06, canvas.height * 0.04 * index + canvas.height * 0.8); // 左寄せ10px、縦位置調整
+		ctx.fillText(line, canvas.width * 0.06, canvas.height * 0.025 * index + canvas.height * 0.8); // 左寄せ10px、縦位置調整
 	});
 
 	//Canvasで文字を表示するので、input要素を非表示にする
