@@ -5,11 +5,17 @@
 <!-- 基本idを使う class -->
 <!-- 特殊な要素の命名は、要素名をいれる  label-img-import-->
 
+<!-- todo -->
+<!-- 
+・色を変更したときにプレースホルダの色はそのままにする
+・画像トリミングが追い付かず？前回の画像が表示されることがある
+ -->
+
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta property="og:description" content="試作品" />
+	<meta property="og:description" content="ベイブレード 簡易プロフィールカードジェネレーター" />
 	<title>Beyblade Profile Card Generator</title>
 </head>
 
@@ -87,15 +93,6 @@
 		margin: 0;
 	}
 
-	@media screen and (min-width: 900px) {
-		#main-container {
-			display: flex;
-		}
-	}
-
-
-
-
 	#left-content {
 		position: relative;
 	}
@@ -131,6 +128,37 @@
 		color: #3bbcdc;
 		font-weight: bold;
 		font-size: 30px;
+	}
+
+
+	/* 標準 */
+	input::placeholder,
+	textarea::-webkit-input-placeholder {
+		color: rgba(255, 255, 255, 0.4);
+	}
+
+	/* WebKit系ブラウザ（Chrome, Safariなど） */
+	input::-webkit-input-placeholder,
+	textarea::-webkit-input-placeholder {
+		color: rgba(255, 255, 255, 0.4);
+	}
+
+	/* Firefox */
+	input::-moz-placeholder,
+	textarea::-moz-placeholder {
+		color: rgba(255, 255, 255, 0.4);
+	}
+
+	/* Internet Explorer 10-11 */
+	input:-ms-input-placeholder,
+	textarea:-ms-input-placeholder {
+		color: rgba(255, 255, 255, 0.4);
+	}
+
+	/* Microsoft Edge */
+	input::-ms-input-placeholder,
+	textarea::-ms-input-placeholder {
+		color: rgba(255, 255, 255, 0.4);
 	}
 
 	/* ブラウザの履歴（オートフィル）から入力された場合も文字色を変える */
@@ -266,14 +294,6 @@
 		text-decoration: none;
 	}
 
-	@media screen and (max-width: 700px) {
-		#modal-container {
-			/* width: 100%; */
-			height: 100vh;
-		}
-	}
-
-
 	.modal {
 		position: fixed;
 		z-index: 1;
@@ -292,7 +312,6 @@
 		background-color: #f4f4f4;
 		margin: 2% auto;
 		width: 90%;
-		/* min-height: 85%; */
 		box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
 		animation-name: modalopen;
 		animation-duration: 1s;
@@ -341,16 +360,22 @@
 		z-index: 2;
 	}
 
+	/* 900px以上の画面幅の場合 */
+	@media screen and (min-width: 900px) {
+		#main-container {
+			display: flex;
+		}
+	}
+
 	/* 900px以下の画面幅の場合 */
 	@media screen and (max-width: 900px) {
 		#result-img {
 			width: 100%;
 		}
-
-
 	}
 
-	@media (min-width: 425px) and (max-width: 900px) {
+	/* 425px以上900px以下の画面幅の場合 */
+	@media (min-width: 426px) and (max-width: 900px) {
 
 		input[type="text"],
 		textarea {
@@ -363,7 +388,8 @@
 		}
 	}
 
-	@media screen and (max-width: 424px) {
+	/* 424px以下の画面幅の場合 */
+	@media screen and (max-width: 425px) {
 
 		#modal-header h1 {
 			font-size: 18px;
@@ -375,7 +401,7 @@
 
 		input[type="text"],
 		textarea {
-			font-size: 20px;
+			font-size: 14px;
 		}
 
 		#label-img-import {

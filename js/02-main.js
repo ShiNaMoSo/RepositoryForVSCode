@@ -116,7 +116,7 @@ inputImg.addEventListener('change', (e) => {
 	if (document.documentElement.clientWidth < 768) {
 		cropRect = { x: 50, y: 50, w: 100, h: 100 };//オブジェクト
 		handleSize = 24;
-	}else if(document.documentElement.clientWidth < 1024){
+	} else if (document.documentElement.clientWidth < 1024) {
 		cropRect = { x: 50, y: 50, w: 200, h: 200 };
 	}
 
@@ -437,8 +437,8 @@ generateBtn.addEventListener('click', () => {
 
 	// 文字スタイル設定
 	ctx.font = `bold 40px ${fontName}`;
-	if(mediaQuerySp.matches){
-		ctx.font = `bold 60px ${fontName}`;
+	if (mediaQuerySp.matches) {
+		ctx.font = `bold 50px ${fontName}`;
 	}
 	ctx.fillStyle = colorpicker.value;
 	ctx.textAlign = 'start';//文字の位置は下記の数値が文字列のどこに位置するか
@@ -454,11 +454,15 @@ generateBtn.addEventListener('click', () => {
 	ctx.fillText(textGeneration, canvas.width * 0.06, canvas.height * 0.54);
 
 	ctx.fillText(textLauncher, canvas.width * 0.06, canvas.height * 0.7);
-	ctx.fillText(textTournament, canvas.width * 0.56, canvas.height * 0.7);
+	ctx.fillText(textTournament, canvas.width * 0.52, canvas.height * 0.7);
 
 	//フリーコメントは1行ごとに場所を指定する
 	textFreeComment.forEach((line, index) => {
-		ctx.fillText(line, canvas.width * 0.06, canvas.height * 0.025 * index + canvas.height * 0.8); // 左寄せ10px、縦位置調整
+		if (mediaQuerySp.matches) {
+			ctx.fillText(line, canvas.width * 0.06, canvas.height * 0.038 * index + canvas.height * 0.8); 
+		} else {
+			ctx.fillText(line, canvas.width * 0.06, canvas.height * 0.025 * index + canvas.height * 0.8); // 左寄せ10px、縦位置調整
+		}
 	});
 
 	//Canvasで文字を表示するので、input要素を非表示にする
