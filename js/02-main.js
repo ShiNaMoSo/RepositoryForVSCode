@@ -32,6 +32,20 @@ const modalBody = document.getElementById('modal-body');
 const modalContent = document.getElementById('modal-content');
 const modalHeader = document.getElementById('modal-header');
 
+const generateBtn = document.getElementById('generate-button');
+const downloadLink = document.getElementById('downloadlink');
+const downloadBtn = document.getElementById('download-button');
+
+const inputText = document.getElementById('input-blader-name');
+const inputAge = document.getElementById('input-age');
+const inputGender = document.getElementById('input-gender');
+const inputLocation = document.getElementById('input-location');
+const inputGeneration = document.getElementById('input-generation');
+const inputMaxPower = document.getElementById('input-max-power');
+const inputLauncher = document.getElementById('input-launcher');
+const inputTournament = document.getElementById('input-tournament');
+const inputFreeComment = document.getElementById('input-free-comment');
+
 //画面サイズ
 const mediaQuerySp = window.matchMedia('(max-width: 425px)');
 const mediaQueryTablet = window.matchMedia('(min-width: 426px)and (max-width: 1023px)');
@@ -74,12 +88,11 @@ inputImg.addEventListener('change', (e) => {
 	modalBackground.style.display = 'block';
 
 	//モーダルが表示後に計算する必要あり
-	const horizontalPadding = parseFloat(window.getComputedStyle(modalBody).paddingRight) * 2;//モーダルの横の余白を取得
-	const verticalMargin = parseFloat(window.getComputedStyle(modalContent).marginTop) * 2 + parseFloat(window.getComputedStyle(modalHeader).height) * 2;//モーダルの縦の余白を取得
+	const modalHorizontalPadding = parseFloat(window.getComputedStyle(modalBody).paddingRight) * 2;//モーダルの横の余白を取得
+	const modalVerticalMargin = parseFloat(window.getComputedStyle(modalContent).marginTop) * 2 + parseFloat(window.getComputedStyle(modalHeader).height) * 2.4;//Androidのナビゲーションバー用にヘッダーも2.4倍にしている
 
-	drawWidth = modalBody.clientWidth - horizontalPadding
-	let maxHeight = window.innerHeight - verticalMargin;
-
+	drawWidth = modalBody.clientWidth - modalHorizontalPadding
+	let maxHeight = window.innerHeight - modalVerticalMargin;
 
 	const file2 = e.target.files[0];
 	if (!file2) return;
@@ -92,7 +105,6 @@ inputImg.addEventListener('change', (e) => {
 		img.onload = () => {
 			[drawWidth, drawHeight] = adjustModalCanvasSize(img, drawWidth, maxHeight);
 			draw(img, drawWidth, drawHeight);
-			generateBtn.style.display = "block";
 		};
 	};
 	reader.readAsDataURL(file2);//Data URL形式（Base64エンコードされた文字列）にする onloadのイベントハンドラを登録してから記載する
@@ -367,8 +379,8 @@ function updateInputFileFromCanvas(resultCanvas) {
 		const file = new File([blob], "cropped.png", { type: "image/png" });
 		const dataTransfer = new DataTransfer();//標準APIのDataTransferオブジェクトを作成し、ファイルを一時的に格納できる箱を用意。
 		dataTransfer.items.add(file);
-		inputElem = document.getElementById('input-img-import');
-		inputElem.files = dataTransfer.files;//input要素のfilesプロパティにDataTransferオブジェクトのfilesプロパティを代入することで、input要素の選択されたファイルを更新できる
+		inputElemt = document.getElementById('input-img-import');
+		inputElemt.files = dataTransfer.files;//input要素のfilesプロパティにDataTransferオブジェクトのfilesプロパティを代入することで、input要素の選択されたファイルを更新できる
 	});
 }
 
@@ -420,21 +432,6 @@ baseImg.onload = () => {
 
 
 // 画像生成ボタンが押された時の処理
-const generateBtn = document.getElementById('generate-button');
-const downloadLink = document.getElementById('downloadlink');
-const downloadBtn = document.getElementById('download-button');
-
-
-const inputText = document.getElementById('input-blader-name');
-const inputAge = document.getElementById('input-age');
-const inputGender = document.getElementById('input-gender');
-const inputLocation = document.getElementById('input-location');
-const inputGeneration = document.getElementById('input-generation');
-const inputMaxPower = document.getElementById('input-max-power');
-const inputLauncher = document.getElementById('input-launcher');
-const inputTournament = document.getElementById('input-tournament');
-const inputFreeComment = document.getElementById('input-free-comment');
-
 generateBtn.addEventListener('click', () => {
 	//プロフィール画像処理
 	const file = inputImg.files[0];
@@ -537,12 +534,11 @@ const reEditBtn = document.getElementById('re-edit-button');
 
 reEditBtn.addEventListener('click', () => {
 
-	generateBtn.style.display = 'none';
+	generateBtn.style.display = 'block';
 	reEditBtn.style.display = 'none';
-
 	inputFreeComment.style.display = 'inline';
 	imgInputLabel.style.display = 'inline-block';
-
+	downloadBtn.style.display = 'none';
 
 	textInputsArray.forEach(input => {
 		input.style.display = 'inline';
@@ -559,7 +555,6 @@ reEditBtn.addEventListener('click', () => {
 	//画像をcanvasから背景画像に戻す
 	resultImg.src = imgSrc;
 
-	downloadBtn.style.display = 'none';
 });
 
 

@@ -8,6 +8,11 @@
 <!-- todo -->
 <!-- 
 ・色を変更したときにプレースホルダの色はそのままにする
+・画像サイズが小さい場合にトリミング範囲の方が大きい
+・確定ボタンを非表示にしない
+・トリミング範囲の縦横比を変えれないようにする
+・モーダルの縦の表示域はAndroidだけ別処理でもいいかも
+・スマホで文字数多いと飛び出る
  -->
 
 <head>
@@ -36,7 +41,7 @@
 				</form>
 				<div id="img-import-content">
 					<label for="input-img-import" id="label-img-import">アイコン画像を選択</label>
-					<input type="file" id="input-img-import" style="display: none;"><br>
+					<input type="file" id="input-img-import" accept="image/*" style="display: none;"><br>
 				</div>
 			</div>
 			<div id="right-content">
@@ -53,7 +58,7 @@
 					</select>
 				</div>
 				<div id="button-content">
-					<button type="button" id="generate-button" style="display: none;">確定</button>
+					<button type="button" id="generate-button">確定</button>
 					<button type="button" id="re-edit-button" style="display: none;">再編集</button>
 					<button type="button" id="download-button" style="display:none;"><a id="downloadlink" download="image.png">ダウンロード</a></button>
 				</div>
@@ -338,13 +343,15 @@
 		justify-content: space-between;
 	}
 
-	.modalClose {
-		font-size: 2rem;
+	#modal-close-button {
+		font-size: 3rem;
 	}
 
-	.modalClose:hover {
+	#modal-close-button:hover {
 		cursor: pointer;
 	}
+
+
 
 	#modal-body {
 		padding: 10px 20px;
