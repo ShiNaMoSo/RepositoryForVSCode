@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
-<!-- HTML ケバブケース 変数は使う処理の近くに宣言 変数はローワーキャメルケース  camelCase-->
+<!-- HTML ケバブケース-->
 <!-- wrapper ＞ container ＞ content ※Contentsはリストを囲む場合など-->
 <!-- 基本idを使う class -->
 <!-- 特殊な要素の命名は、要素名をいれる  label-img-import-->
@@ -8,7 +8,6 @@
 <!-- todo -->
 <!-- 
 ・色を変更したときにプレースホルダの色はそのままにする
-・画像トリミングが追い付かず？前回の画像が表示されることがある
  -->
 
 <head>
@@ -54,7 +53,7 @@
 					</select>
 				</div>
 				<div id="button-content">
-					<button type="button" id="generate-button">確定</button>
+					<button type="button" id="generate-button" style="display: none;">確定</button>
 					<button type="button" id="re-edit-button" style="display: none;">再編集</button>
 					<button type="button" id="download-button" style="display:none;"><a id="downloadlink" download="image.png">ダウンロード</a></button>
 				</div>
